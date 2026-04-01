@@ -1,0 +1,12 @@
+#ifndef _VIRTUAL_MACHINE_H_
+#define _VIRTUAL_MACHINE_H_
+
+#include "vcpu.h"
+
+typedef struct _CHIP8_VIRTUAL_MACHINE
+{
+    CHIP8_VIRTUAL_CPU Processor;
+
+} CHIP8_VIRTUAL_MACHINE, *PCHIP8_VIRTUAL_MACHINE;
+
+#endif // _VIRTUAL_MACHINE_H_

@@ -1,0 +1,9 @@
+#ifndef _VIRTUAL_CPU_H_
+#define _VIRTUAL_CPU_H_
+
+typedef struct _CHIP8_VIRTUAL_CPU
+{
+
+} CHIP8_VIRTUAL_CPU, *PCHIP8_VIRTUAL_CPU;
+
+#endif
