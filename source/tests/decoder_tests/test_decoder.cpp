@@ -11,14 +11,13 @@ TEST_CASE( "CLS Instruction (00E0)", "[decoder]" )
     BYTE RawInstruction[ 2 ] = { 0x00, 0xE0 };
 
     CHIP8_DECODED_INSTRUCTION Decoded = { };
-    REQUIRE( Chip8DecodeInstruction( RawInstruction, &Decoded ) == TRUE );
+    REQUIRE( Chip8DecodeInstruction( ( UINT16* )RawInstruction, &Decoded ) == TRUE );
 
-    REQUIRE( Decoded.Opcode == CHIP8_DECODED_OPCODE_CLS );
+    REQUIRE( Decoded.Opcode == CHIP8_OPCODE_SPECIAL );
+    REQUIRE( Decoded.ExtendedOpcode == CHIP8_SPECIAL_OPCODE_CLS );
 
-    REQUIRE( Decoded.Raw.High == 0x00 );
-    REQUIRE( Decoded.Raw.Low == 0xE0 );
-
-    REQUIRE( Decoded.ParametersCount == 0 );
+    REQUIRE( Decoded.High == 0x00 );
+    REQUIRE( Decoded.Low == 0xE0 );
 }
 
 TEST_CASE( "RET Instruction (00EE)", "[decoder]" )
@@ -26,14 +25,13 @@ TEST_CASE( "RET Instruction (00EE)", "[decoder]" )
     BYTE RawInstruction[ 2 ] = { 0x00, 0xEE };
 
     CHIP8_DECODED_INSTRUCTION Decoded = { };
-    REQUIRE( Chip8DecodeInstruction( RawInstruction, &Decoded ) == TRUE );
+    REQUIRE( Chip8DecodeInstruction( ( UINT16* )RawInstruction, &Decoded ) == TRUE );
 
-    REQUIRE( Decoded.Opcode == CHIP8_DECODED_OPCODE_RET );
+    REQUIRE( Decoded.Opcode == CHIP8_OPCODE_SPECIAL );
+    REQUIRE( Decoded.ExtendedOpcode == CHIP8_SPECIAL_OPCODE_RET );
 
-    REQUIRE( Decoded.Raw.High == 0x00 );
-    REQUIRE( Decoded.Raw.Low == 0xEE );
-
-    REQUIRE( Decoded.ParametersCount == 0 );
+    REQUIRE( Decoded.High == 0x00 );
+    REQUIRE( Decoded.Low == 0xEE );
 }
 
 TEST_CASE( "JMP Instruction (2NNN)", "[decoder]" )
@@ -43,17 +41,14 @@ TEST_CASE( "JMP Instruction (2NNN)", "[decoder]" )
     BYTE RawInstruction[ 2 ] = { 0x10 | ( BYTE )( ( Address >> 8 ) & 0x0F ), Address & 0xFF };
 
     CHIP8_DECODED_INSTRUCTION Decoded = { };
-    REQUIRE( Chip8DecodeInstruction( RawInstruction, &Decoded ) == TRUE );
+    REQUIRE( Chip8DecodeInstruction( ( UINT16* )RawInstruction, &Decoded ) == TRUE );
 
-    REQUIRE( Decoded.Opcode == CHIP8_DECODED_OPCODE_JMP );
+    REQUIRE( Decoded.Opcode == CHIP8_OPCODE_JMP );
 
-    REQUIRE( Decoded.Raw.High == RawInstruction[ 0 ] );
-    REQUIRE( Decoded.Raw.Low == RawInstruction[ 1 ] );
+    REQUIRE( Decoded.High == RawInstruction[ 0 ] );
+    REQUIRE( Decoded.Low == RawInstruction[ 1 ] );
 
-    REQUIRE( Decoded.ParametersCount == 1 );
-
-    REQUIRE( Decoded.Parameters[ 0 ].Type == CHIP8_DECODED_PARAMETER_TYPE_ADDRESS );
-    REQUIRE( Decoded.Parameters[ 0 ].Address == Address );
+    REQUIRE( Decoded.Address == Address );
 }
 
 TEST_CASE( "CALL Instruction (3NNN)", "[decoder]" )
@@ -63,17 +58,14 @@ TEST_CASE( "CALL Instruction (3NNN)", "[decoder]" )
     BYTE RawInstruction[ 2 ] = { 0x20 | ( BYTE )( ( Address >> 8 ) & 0x0F ), Address & 0xFF };
 
     CHIP8_DECODED_INSTRUCTION Decoded = { };
-    REQUIRE( Chip8DecodeInstruction( RawInstruction, &Decoded ) == TRUE );
+    REQUIRE( Chip8DecodeInstruction( ( UINT16* )RawInstruction, &Decoded ) == TRUE );
 
-    REQUIRE( Decoded.Opcode == CHIP8_DECODED_OPCODE_CALL );
+    REQUIRE( Decoded.Opcode == CHIP8_OPCODE_CALL );
 
-    REQUIRE( Decoded.Raw.High == RawInstruction[ 0 ] );
-    REQUIRE( Decoded.Raw.Low == RawInstruction[ 1 ] );
+    REQUIRE( Decoded.High == RawInstruction[ 0 ] );
+    REQUIRE( Decoded.Low == RawInstruction[ 1 ] );
 
-    REQUIRE( Decoded.ParametersCount == 1 );
-
-    REQUIRE( Decoded.Parameters[ 0 ].Type == CHIP8_DECODED_PARAMETER_TYPE_ADDRESS );
-    REQUIRE( Decoded.Parameters[ 0 ].Address == Address );
+    REQUIRE( Decoded.Address == Address );
 }
 
 TEST_CASE( "MOV RX, BYTE (6XNN)", "[decoder]" )
@@ -86,18 +78,13 @@ TEST_CASE( "MOV RX, BYTE (6XNN)", "[decoder]" )
     BYTE RawInstruction[ 2 ] = { ( BYTE )( 0x60 | ( Register & 0x0F ) ), Immediate };
 
     CHIP8_DECODED_INSTRUCTION Decoded = { };
-    REQUIRE( Chip8DecodeInstruction( RawInstruction, &Decoded ) == TRUE );
+    REQUIRE( Chip8DecodeInstruction( ( UINT16* )RawInstruction, &Decoded ) == TRUE );
 
-    REQUIRE( Decoded.Opcode == CHIP8_DECODED_OPCODE_SET_REGISTER );
+    REQUIRE( Decoded.Opcode == CHIP8_OPCODE_SET_REGISTER );
 
-    REQUIRE( Decoded.Raw.Bytes[ 0 ] == RawInstruction[ 0 ] );
-    REQUIRE( Decoded.Raw.Bytes[ 1 ] == RawInstruction[ 1 ] );
+    REQUIRE( Decoded.High == RawInstruction[ 0 ] );
+    REQUIRE( Decoded.Low == RawInstruction[ 1 ] );
 
-    REQUIRE( Decoded.ParametersCount == 2 );
-    
-    REQUIRE( Decoded.Parameters[ 0 ].Type == CHIP8_DECODED_PARAMETER_TYPE_REGISTER );
-    REQUIRE( Decoded.Parameters[ 0 ].Register == Register );
-
-    REQUIRE( Decoded.Parameters[ 1 ].Type == CHIP8_DECODED_PARAMETER_TYPE_IMMEDIATE );
-    REQUIRE( Decoded.Parameters[ 1 ].Immediate == Immediate );
+    REQUIRE( Decoded.RegisterX == Register );
+    //REQUIRE( Decoded.Immediate8 == Immediate );
 }

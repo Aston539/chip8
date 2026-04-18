@@ -1,29 +1,35 @@
 #ifndef _CHIP8_DISASSEMBLER_H_
 #define _CHIP8_DISASSEMBLER_H_
 
-#include <defines.h>
-#include <decoder/decoder.h>
+#include <vector>
 
-#define CHIP8_DISASSEMBLED_INSTRUCTION_MAX_TEXT 128
+#include <isa/function.h>
+#include <isa/instruction.h>
 
-typedef struct _CHIP8_DISASSEMBLED_INSTRUCTION
+typedef struct _CHIP8_DISASSEMBLED_PROGRAM
 {
-    CHIP8_DECODED_INSTRUCTION Decoded;
-    CHAR Text[ CHIP8_DISASSEMBLED_INSTRUCTION_MAX_TEXT + 1 ];
+    std::vector<CHIP8_FUNCTION*> Functions;
 
-} CHIP8_DISASSEMBLED_INSTRUCTION, *PCHIP8_DISASSEMBLED_INSTRUCTION;
-
-BOOL
-Chip8FormatInstruction(
-    _In_ CONST CHIP8_DECODED_INSTRUCTION CONST* Instruction,
-    _Inout_ CHAR* Buffer,
-    _In_ SIZE_T BufferSize
-);
+} CHIP8_DISASSEMBLED_PROGRAM, *PCHIP8_DISASSEMBLED_PROGRAM;
 
 BOOL
 Chip8DisassembleInstruction(
-    _In_ CONST BYTE* CONST Instruction,
-    _Inout_ CHIP8_DISASSEMBLED_INSTRUCTION* DisassembledInstruction
+    _In_ CONST UINT16* CONST Instruction,
+    _Inout_ CHIP8_INSTRUCTION* DisassembledInstruction
+);
+
+BOOL
+Chip8DisassembleProgram(
+    _In_ CONST BYTE CONST* Program,
+    _In_ SIZE_T ProgramSize,
+    _Inout_ CHIP8_DISASSEMBLED_PROGRAM* Disassembly
+);
+
+BOOL
+Chip8FormatInstruction(
+    _In_ CONST CHIP8_INSTRUCTION CONST* Instruction,
+    _Inout_ CHAR* Buffer,
+    _In_ SIZE_T BufferSize
 );
 
 #endif // _CHIP8_DISASSEMBLER_H_

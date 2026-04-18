@@ -89,40 +89,106 @@ DisplayInstructionsDisassembly(
     _In_ SIZE_T CodeSize
 )
 {
-    CONSTEXPR ULONG32 CHIP8_CODE_BASE_ADDRESS = 0x200;
-
-    for ( ULONG32 CodeOffset = NULL;
-                  CodeOffset < CodeSize;
-                  CodeOffset += sizeof( WORD ) )
+    CHIP8_DISASSEMBLED_PROGRAM ProgramDisassembly = { };
+    if ( Chip8DisassembleProgram( Code, CodeSize, &ProgramDisassembly ) == FALSE )
     {
-        CHAR DisassemblyFormat[ 256 + 1 ] = { };
+        __debugbreak( );
+    }
 
-        snprintf( DisassemblyFormat, 256, "[ %-14p ]\t%02X %02X", CHIP8_CODE_BASE_ADDRESS + CodeOffset, Code[ CodeOffset ], Code[ CodeOffset + 1 ] );
+    for ( CHIP8_FUNCTION* Function : ProgramDisassembly.Functions )
+    {
+        printf( "CODE:%04X", Function->Address );
+        printf( "\t" );
+        printf( "\t" );
+        printf( "sub_%04X", Function->Address );
+        printf( "\n" );
 
-        CHIP8_DISASSEMBLED_INSTRUCTION Instruction = { };
-        if ( Chip8DisassembleInstruction( Code + CodeOffset, &Instruction ) )
+        for ( BYTE BasicBlockIndex = NULL;
+                   BasicBlockIndex < Function->BasicBlocksCount;
+                   BasicBlockIndex++ )
         {
-            snprintf( DisassemblyFormat, 256, "%s\t%-32s", DisassemblyFormat, Instruction.Text );
-        }
-        else
-        {
-            snprintf( DisassemblyFormat, 256, "%s\t%-32s", DisassemblyFormat, "???" );
-        }
+            CONST CHIP8_BASIC_BLOCK CONST* BasicBlock = Function->BasicBlocks[ BasicBlockIndex ];
 
-        printf( "%s\n", DisassemblyFormat );
+            if ( BasicBlock->Address != Function->Address )
+            {
+                printf( "CODE:%04X", BasicBlock->Address );
+                printf( "\t" );
+                printf( "\t" );
+                printf( "loc_%04X", BasicBlock->Address );
+                printf( "\t" );
+
+                CHIP8_CONTROL_FLOW_NODE* ReferencingNode = NULL;
+                if ( Chip8ControlFlowGraphLookupNodeByAddress( Function->ControlFlowGraph, BasicBlock->Address, &ReferencingNode ) )
+                {
+                    if ( ReferencingNode->PredecessorsCount )
+                    {
+                        printf( "\t" );
+                        printf( " ; -> " );
+                        for ( BYTE SuccessorIndex = NULL;
+                                   SuccessorIndex < ReferencingNode->PredecessorsCount;
+                                   SuccessorIndex++ )
+                        {
+                            printf( "%04X", ReferencingNode->Predecessors[ SuccessorIndex ] );
+
+                            if ( ( SuccessorIndex + 1 ) < ReferencingNode->PredecessorsCount )
+                            {
+                                printf( ", " );
+                            }
+                        }
+                    }
+                }
+
+                printf( "\n" );
+            }
+
+            for ( BYTE InstructionIndex = NULL;
+                       InstructionIndex < BasicBlock->InstructionsCount;
+                       InstructionIndex++ )
+            {
+                UINT16 InstructionAddress = BasicBlock->Address + ( InstructionIndex * sizeof( CHIP8_ENCODED_INSTRUCTION ) );
+                CHAR InstructionText[ 64 + 1 ] = { };
+                Chip8FormatInstruction( BasicBlock->Instructions[ InstructionIndex ], InstructionText, 64 );
+
+                printf( "CODE:%04X", InstructionAddress );
+                printf( "\t" );
+                printf( "%02X %02X", Code[ InstructionAddress - 512 - 1 ], Code[ InstructionAddress - 512 ] );
+                printf( "\t" );
+                printf( InstructionText );
+                printf( "\n" );
+            }
+
+            printf( "\n" );
+        }
     }
 }
 
 int main( int ArgumentCount, char** Arguments )
 {
+    std::vector<BYTE> Code = { };
+
     if ( ArgumentCount < 2 )
     {
-        DisplayUsage( );
+        //DisplayUsage( );
+        
+        //return 1;
 
-        return 1;
+
+        //std::ifstream File( "C:\\Users\\Aston\\Documents\\Projects\\aston-work\\chip8\\roms\\IBM Logo.ch8", std::ios::in | std::ios::binary );
+        std::ifstream File( "C:\\Users\\Aston\\Downloads\\Pong 2 (Pong hack) [David Winter, 1997].ch8", std::ios::in | std::ios::binary );
+        if ( File.is_open( ) == FALSE )
+        {
+            return 1;
+        }
+
+        File.seekg( NULL, std::ios::end );
+        std::streamsize FileSize = File.tellg( );
+        File.seekg( NULL, std::ios::beg );
+
+        Code.resize( FileSize );
+        File.read( ( CHAR* )Code.data( ), FileSize );
     }
 
-    std::vector<BYTE> Code = { };
+    //std::vector<BYTE> Code = { };
     if ( ArgumentCount == 2 && IsArgumentPath( Arguments[ 1 ] ) )
     {
         std::ifstream File( Arguments[ 1 ], std::ios::in | std::ios::binary );
@@ -171,6 +237,8 @@ int main( int ArgumentCount, char** Arguments )
     }
 
     DisplayInstructionsDisassembly( Code.data( ), Code.size( ) );
+
+    while ( getchar( ) == 0 );
 
     return 0;
 }
