@@ -3,12 +3,173 @@
 
 #include <cstdio>
 
+STATIC
+VOID
+Chip8VirtualMachineLoadFontSet(
+    _Inout_ CHIP8_VIRTUAL_MACHINE* Machine
+)
+{
+    STATIC LPCSTR Chip8FontCharacters[ 16 ][ 5 ] = {
+       {
+           "####",
+           "#  #",
+           "#  #",
+           "#  #",
+           "####",
+       },
+
+       {
+           "  # ",
+           " ## ",
+           "  # ",
+           "  # ",
+           "####",
+       },
+
+       {
+           "####",
+           "   #",
+           "####",
+           "#   ",
+           "####",
+       },
+
+       {
+           "####",
+           "   #",
+           "####",
+           "   #",
+           "####",
+       },
+
+       {
+           "#  #",
+           "#  #",
+           "####",
+           "   #",
+           "   #",
+       },
+
+       {
+           "####",
+           "#   ",
+           "####",
+           "   #",
+           "####",
+       },
+
+       {
+           "####",
+           "#   ",
+           "####",
+           "#  #",
+           "####",
+       },
+
+       {
+           "####",
+           "   #",
+           "  # ",
+           " #  ",
+           " #  ",
+       },
+
+       {
+           "####",
+           "#  #",
+           "####",
+           "#  #",
+           "####",
+       },
+
+       {
+           "####",
+           "#  #",
+           "####",
+           "   #",
+           "####",
+       },
+
+       {
+           "####",
+           "#  #",
+           "####",
+           "#  #",
+           "#  #",
+       },
+
+       {
+           "### ",
+           "#  #",
+           "### ",
+           "#  #",
+           "### ",
+       },
+
+       {
+           "####",
+           "#   ",
+           "#   ",
+           "#   ",
+           "####",
+       },
+
+       {
+           "### ",
+           "#  #",
+           "#  #",
+           "#  #",
+           "### ",
+       },
+
+       {
+           "####",
+           "#   ",
+           "####",
+           "#   ",
+           "####",
+       },
+
+       {
+           "####",
+           "#   ",
+           "####",
+           "#   ",
+           "#   ",
+       },
+    };
+
+    for ( BYTE Character = NULL; 
+               Character < 16; 
+               Character++ )
+    {
+        for ( BYTE Row = NULL;
+                   Row < 5;
+                   Row++ )
+        {
+            BYTE Value = NULL;
+            for ( BYTE Column = NULL;
+                       Column < 5;
+                       Column++ )
+            {
+                if ( Chip8FontCharacters[ Character ][ Row ][ Column ] == '#' )
+                {
+                    Value |= ( 1 << ( 7 - Column ) );
+                }
+            }
+
+            Machine->Memory[ ( Character * 5 ) + Row ] = Value;
+        }
+    }
+}
+
 VOID
 Chip8VirtualMachineStartup(
     _Inout_ CHIP8_VIRTUAL_MACHINE* Machine
 )
 {
     memset( &Machine->Keypad, NULL, sizeof( Machine->Keypad ) );
+    memset( &Machine->PreviousKeypad, NULL, sizeof( Machine->PreviousKeypad ) );
 
     Chip8VirtualDisplayClear( &Machine->Display );
 
@@ -20,6 +181,7 @@ Chip8VirtualMachineStartup(
     //
     // load font set into memory
     //
+    Chip8VirtualMachineLoadFontSet( Machine );
 }
 
 BOOL
@@ -47,7 +209,11 @@ Chip8VirtualMachineExecuteProgramCycle(
     _Inout_ CHIP8_VIRTUAL_MACHINE* Machine
 )
 {
-    return Chip8VirtualProcessorExecuteCycle( &Machine->Processor, Machine );
+    BOOL Success = Chip8VirtualProcessorExecuteCycle( &Machine->Processor, Machine );
+
+    memcpy( Machine->PreviousKeypad, Machine->Keypad, sizeof( CHIP8_VIRTUAL_KEYPAD ) );
+
+    return Success;
 }
 
 //BOOL

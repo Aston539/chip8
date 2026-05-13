@@ -2,18 +2,19 @@
 #include <encoder/encoder.h>
 #include <disassembler/disassembler.h>
 
-typedef struct _CHIP8_LEXER
-{
-    LPCSTR Source;
-    SIZE_T Position;
-    SIZE_T Length;
-
-} CHIP8_LEXER, *PCHIP8_LEXER;
+#define CHIP8_ASSEMBLER_TOKEN_TYPE_UNKNOWN  0
+#define CHIP8_ASSEMBLER_TOKEN_TYPE_MNEMONIC 1
+#define CHIP8_ASSEMBLER_TOKEN_TYPE_REGSTER  2
+#define CHIP8_ASSEMBLER_TOKEN_TYPE_INTEGRAL 3
 
 typedef struct _CHIP8_TOKEN
 {
-    LPCSTR Start;
-    SIZE_T Length;
+    BYTE Type;
+
+    LPCSTR Lexeme;
+
+    ULONG Line;
+    ULONG Column;
 
 } CHIP8_TOKEN, *PCHIP8_TOKEN;
 

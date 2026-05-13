@@ -98,9 +98,8 @@ DisplayInstructionsDisassembly(
     for ( CHIP8_FUNCTION* Function : ProgramDisassembly.Functions )
     {
         printf( "CODE:%04X", Function->Address );
-        printf( "\t" );
-        printf( "\t" );
-        printf( "sub_%04X", Function->Address );
+        printf( "  " );
+        printf( "FUNCTION_%04X START", Function->Address );
         printf( "\n" );
 
         for ( BYTE BasicBlockIndex = NULL;
@@ -112,16 +111,17 @@ DisplayInstructionsDisassembly(
             if ( BasicBlock->Address != Function->Address )
             {
                 printf( "CODE:%04X", BasicBlock->Address );
-                printf( "\t" );
-                printf( "\t" );
-                printf( "loc_%04X", BasicBlock->Address );
-                printf( "\t" );
+                printf( "  " );
+                printf( "LABEL_%04X:", BasicBlock->Address );
 
                 CHIP8_CONTROL_FLOW_NODE* ReferencingNode = NULL;
                 if ( Chip8ControlFlowGraphLookupNodeByAddress( Function->ControlFlowGraph, BasicBlock->Address, &ReferencingNode ) )
                 {
                     if ( ReferencingNode->PredecessorsCount )
                     {
+                        printf( "\t" );
+                        printf( "\t" );
+                        printf( "\t" );
                         printf( "\t" );
                         printf( " ; -> " );
                         for ( BYTE SuccessorIndex = NULL;
@@ -150,15 +150,26 @@ DisplayInstructionsDisassembly(
                 Chip8FormatInstruction( BasicBlock->Instructions[ InstructionIndex ], InstructionText, 64 );
 
                 printf( "CODE:%04X", InstructionAddress );
-                printf( "\t" );
+                printf( "    " );
                 printf( "%02X %02X", Code[ InstructionAddress - 512 - 1 ], Code[ InstructionAddress - 512 ] );
-                printf( "\t" );
+                printf( "    " );
                 printf( InstructionText );
                 printf( "\n" );
             }
 
-            printf( "\n" );
+            if ( BasicBlockIndex != ( Function->BasicBlocksCount - 1 ) )
+            {
+                printf( "\n" );
+            }
+
         }
+
+        printf( "CODE:%04X", Function->Address );
+        printf( "  " );
+        printf( "FUNCTION_%04X END", Function->Address );
+        printf( "\n" );
+
+        printf( "\n" );
     }
 }
 
@@ -174,7 +185,8 @@ int main( int ArgumentCount, char** Arguments )
 
 
         //std::ifstream File( "C:\\Users\\Aston\\Documents\\Projects\\aston-work\\chip8\\roms\\IBM Logo.ch8", std::ios::in | std::ios::binary );
-        std::ifstream File( "C:\\Users\\Aston\\Downloads\\Pong 2 (Pong hack) [David Winter, 1997].ch8", std::ios::in | std::ios::binary );
+        //std::ifstream File( "C:\\Users\\Aston\\Documents\\Projects\\aston-work\\chip8\\roms\\3-corax+.ch8", std::ios::in | std::ios::binary );
+        std::ifstream File( "C:\\Users\\Aston\\Documents\\Projects\\aston-work\\chip8\\roms\\4-flags.ch8", std::ios::in | std::ios::binary );
         if ( File.is_open( ) == FALSE )
         {
             return 1;

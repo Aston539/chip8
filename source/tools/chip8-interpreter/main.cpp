@@ -1,4 +1,5 @@
 #include <interpreter/machine.h>
+#include <disassembler/disassembler.h>
 
 #include <fstream>
 #include <vector>
@@ -19,13 +20,11 @@ WindowProcedure(
     {
         case WM_PAINT:
         {
-            Chip8VirtualMachineExecuteProgramCycle( &Chip8VirtualMachine );
-
             PAINTSTRUCT Paint = { };
             HDC DeviceContext = BeginPaint( Window, &Paint );
 
-            STATIC HBRUSH PrimaryColour = CreateSolidBrush( RGB( 255, 255, 255 ) );
-            STATIC HBRUSH SecondaryColour = CreateSolidBrush( RGB( 0, 0, 0 ) );
+            STATIC HBRUSH PrimaryColour = CreateSolidBrush( RGB( 0, 160, 255 ) );
+            STATIC HBRUSH SecondaryColour = CreateSolidBrush( RGB( 255, 85, 0 ) );
 
             HGDIOBJ OriginalBrush = NULL;
             for ( BYTE Y = NULL; Y < 32; Y++ )
@@ -41,69 +40,44 @@ WindowProcedure(
                         OriginalBrush = SelectObject( DeviceContext, SecondaryColour );
                     }
 
-                    Rectangle( DeviceContext, X * DisplayScale, Y * DisplayScale, ( X + 1 ) * DisplayScale, ( Y + 1 ) * DisplayScale );
+                    Rectangle( DeviceContext, 
+                               ( X * DisplayScale ),
+                               ( Y * DisplayScale ), 
+                               ( ( X + 1 ) * DisplayScale ), 
+                               ( ( Y + 1 ) * DisplayScale ) );
                 }
             }
 
             EndPaint( Window, &Paint );
 
-            InvalidateRect( Window, NULL, TRUE );
-            UpdateWindow( Window );
-
         } break;
 
         case WM_KEYDOWN:
-        {
-            switch ( WParam )
-            {
-                case '1': Chip8VirtualMachine.Keypad[ 0x1 ] = TRUE; break;
-                case '2': Chip8VirtualMachine.Keypad[ 0x2 ] = TRUE; break;
-                case '3': Chip8VirtualMachine.Keypad[ 0x3 ] = TRUE; break;
-                case '4': Chip8VirtualMachine.Keypad[ 0xC ] = TRUE; break;
-
-                case 'Q': Chip8VirtualMachine.Keypad[ 0x4 ] = TRUE; break;
-                case 'W': Chip8VirtualMachine.Keypad[ 0x5 ] = TRUE; break;
-                case 'E': Chip8VirtualMachine.Keypad[ 0x6 ] = TRUE; break;
-                case 'R': Chip8VirtualMachine.Keypad[ 0xD ] = TRUE; break;
-
-                case 'A': Chip8VirtualMachine.Keypad[ 0x7 ] = TRUE; break;
-                case 'S': Chip8VirtualMachine.Keypad[ 0x8 ] = TRUE; break;
-                case 'D': Chip8VirtualMachine.Keypad[ 0x9 ] = TRUE; break;
-                case 'F': Chip8VirtualMachine.Keypad[ 0xE ] = TRUE; break;
-
-                case 'Z': Chip8VirtualMachine.Keypad[ 0xA ] = TRUE; break;
-                case 'X': Chip8VirtualMachine.Keypad[ 0x0 ] = TRUE; break;
-                case 'C': Chip8VirtualMachine.Keypad[ 0xB ] = TRUE; break;
-                case 'V': Chip8VirtualMachine.Keypad[ 0xF ] = TRUE; break;
-
-                default: break;
-            }
-        
-        } break;
-        
         case WM_KEYUP:
         {
+            BOOL State = ( Message == WM_KEYDOWN );
+
             switch ( WParam )
             {
-                case '1': Chip8VirtualMachine.Keypad[ 0x1 ] = FALSE; break;
-                case '2': Chip8VirtualMachine.Keypad[ 0x2 ] = FALSE; break;
-                case '3': Chip8VirtualMachine.Keypad[ 0x3 ] = FALSE; break;
-                case '4': Chip8VirtualMachine.Keypad[ 0xC ] = FALSE; break;
+                case '1': Chip8VirtualMachine.Keypad[ 0x1 ] = State; break;
+                case '2': Chip8VirtualMachine.Keypad[ 0x2 ] = State; break;
+                case '3': Chip8VirtualMachine.Keypad[ 0x3 ] = State; break;
+                case '4': Chip8VirtualMachine.Keypad[ 0xC ] = State; break;
 
-                case 'Q': Chip8VirtualMachine.Keypad[ 0x4 ] = FALSE; break;
-                case 'W': Chip8VirtualMachine.Keypad[ 0x5 ] = FALSE; break;
-                case 'E': Chip8VirtualMachine.Keypad[ 0x6 ] = FALSE; break;
-                case 'R': Chip8VirtualMachine.Keypad[ 0xD ] = FALSE; break;
+                case 'Q': case 'q': Chip8VirtualMachine.Keypad[ 0x4 ] = State; break;
+                case 'W': case 'w': Chip8VirtualMachine.Keypad[ 0x5 ] = State; break;
+                case 'E': case 'e': Chip8VirtualMachine.Keypad[ 0x6 ] = State; break;
+                case 'R': case 'r': Chip8VirtualMachine.Keypad[ 0xD ] = State; break;
 
-                case 'A': Chip8VirtualMachine.Keypad[ 0x7 ] = FALSE; break;
-                case 'S': Chip8VirtualMachine.Keypad[ 0x8 ] = FALSE; break;
-                case 'D': Chip8VirtualMachine.Keypad[ 0x9 ] = FALSE; break;
-                case 'F': Chip8VirtualMachine.Keypad[ 0xE ] = FALSE; break;
+                case 'A': case 'a': Chip8VirtualMachine.Keypad[ 0x7 ] = State; break;
+                case 'S': case 's': Chip8VirtualMachine.Keypad[ 0x8 ] = State; break;
+                case 'D': case 'd': Chip8VirtualMachine.Keypad[ 0x9 ] = State; break;
+                case 'F': case 'f': Chip8VirtualMachine.Keypad[ 0xE ] = State; break;
 
-                case 'Z': Chip8VirtualMachine.Keypad[ 0xA ] = FALSE; break;
-                case 'X': Chip8VirtualMachine.Keypad[ 0x0 ] = FALSE; break;
-                case 'C': Chip8VirtualMachine.Keypad[ 0xB ] = FALSE; break;
-                case 'V': Chip8VirtualMachine.Keypad[ 0xF ] = FALSE; break;
+                case 'Z': case 'z': Chip8VirtualMachine.Keypad[ 0xA ] = State; break;
+                case 'X': case 'x': Chip8VirtualMachine.Keypad[ 0x0 ] = State; break;
+                case 'C': case 'c': Chip8VirtualMachine.Keypad[ 0xB ] = State; break;
+                case 'V': case 'v': Chip8VirtualMachine.Keypad[ 0xF ] = State; break;
 
                 default: break;
             }
@@ -130,7 +104,14 @@ SetupVirtualMachine(
     Chip8VirtualMachineStartup( &Chip8VirtualMachine );
 
     std::vector<BYTE> Program = { };
-    std::ifstream File( "C:\\Users\\Aston\\Downloads\\Pong 2 (Pong hack) [David Winter, 1997].ch8", std::ios::in | std::ios::binary );
+    //std::ifstream File( "C:\\Users\\Aston\\Downloads\\Pong 2 (Pong hack) [David Winter, 1997].ch8", std::ios::in | std::ios::binary );
+    //std::ifstream File( "C:\\Users\\Aston\\Downloads\\Hi - Lo[ Jef Winsor, 1978 ].ch8", std::ios::in | std::ios::binary );
+    //std::ifstream File( "C:\\Users\\Aston\\Downloads\\Space Invaders [David Winter].ch8", std::ios::in | std::ios::binary );
+    //std::ifstream File( "C:\\Users\\Aston\\Downloads\\Connect 4 [David Winter].ch8", std::ios::in | std::ios::binary );
+    //std::ifstream File( "C:\\Users\\Aston\\Documents\\Projects\\aston-work\\chip8\\roms\\1-chip8-logo.ch8", std::ios::in | std::ios::binary );
+    //std::ifstream File( "C:\\Users\\Aston\\Documents\\Projects\\aston-work\\chip8\\roms\\2-ibm-logo.ch8", std::ios::in | std::ios::binary );
+    //std::ifstream File( "C:\\Users\\Aston\\Documents\\Projects\\aston-work\\chip8\\roms\\3-corax+.ch8", std::ios::in | std::ios::binary );
+    std::ifstream File( "C:\\Users\\Aston\\Documents\\Projects\\aston-work\\chip8\\roms\\4-flags.ch8", std::ios::in | std::ios::binary );
     if ( File.is_open( ) == FALSE )
     {
         return 1;
@@ -145,6 +126,8 @@ SetupVirtualMachine(
 
     return Chip8VirtualMachineLoadProgram( &Chip8VirtualMachine, Program.data( ), Program.size( ) );
 }
+
+#include <thread>
 
 int main( )
 {
@@ -165,8 +148,8 @@ int main( )
                                   WS_OVERLAPPEDWINDOW, 
                                   CW_USEDEFAULT, 
                                   CW_USEDEFAULT, 
-                                  64 * DisplayScale, 
-                                  32 * DisplayScale,
+                                  ( 64 * DisplayScale ) + ( DisplayScale * 2 ), 
+                                  ( 32 * DisplayScale ) + ( DisplayScale * 2 ),
                                   NULL, 
                                   NULL, 
                                   NULL, 
@@ -174,10 +157,44 @@ int main( )
 
     ShowWindow( Window, SW_SHOW );
 
-    MSG WindowMessage = { };
-    while ( GetMessage( &WindowMessage, NULL, NULL, NULL ) )
+    std::thread( [& ]( ) 
     {
-        TranslateMessage( &WindowMessage );
-        DispatchMessage( &WindowMessage );
+        while ( TRUE )
+        {
+            InvalidateRect( Window, NULL, TRUE );
+            UpdateWindow( Window );
+
+            for ( ULONG I = NULL; I < 16; I ++ ) Chip8VirtualMachineExecuteProgramCycle( &Chip8VirtualMachine );
+
+            Sleep( 1 );
+        }
+
+        //UINT16 Address = Chip8VirtualMachine.Processor.ProgramCounter;
+        //
+        //CHIP8_INSTRUCTION CurrentInstruction = { };
+        //Chip8DisassembleInstruction( ( CONST UINT16 CONST* ) & Chip8VirtualMachine.Memory[ Address ], &CurrentInstruction );
+        //
+        //BYTE InstructionLow = Chip8VirtualMachine.Memory[ Address ];
+        //BYTE InstructionHigh = Chip8VirtualMachine.Memory[ Address + 1 ];
+        //
+        //CHAR InstructionFormat[ 64 + 1 ] = { };
+        //Chip8FormatInstruction( &CurrentInstruction, InstructionFormat, 64 );
+        //
+        //printf( "%04X %02X %02X %s\n", Address, InstructionLow, InstructionHigh, InstructionFormat );
+    } ).detach( );
+
+    while ( TRUE )
+    {
+        MSG WindowMessage = { };
+        if ( PeekMessage( &WindowMessage, NULL, NULL, NULL, PM_REMOVE ) )
+        {
+            if ( WindowMessage.message == WM_QUIT )
+            {
+                break;
+            }
+
+            TranslateMessage( &WindowMessage );
+            DispatchMessage( &WindowMessage );
+        }
     }
 }

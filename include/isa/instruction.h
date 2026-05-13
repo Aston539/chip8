@@ -40,6 +40,7 @@
 #define CHIP8_OPERAND_FLAG_BINARY_CODED_DECIMAL   ( 1 << 0 )
 #define CHIP8_OPERAND_FLAG_SPRITE_INDEX           ( 1 << 1 )
 #define CHIP8_OPERAND_FLAG_RELATIVE_R0            ( 1 << 2 )
+#define CHIP8_OPERAND_FLAG_MEMORY_ACCESS          ( 1 << 3 )
 
 typedef BYTE CHIP8_MNEMONIC;
 typedef BYTE CHIP8_OPERAND_TYPE;

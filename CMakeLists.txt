@@ -20,6 +20,7 @@ add_subdirectory( source/interpreter )
 add_subdirectory( source/tools/chip8-disassembler )
 add_subdirectory( source/tools/chip8-assembler )
 add_subdirectory( source/tools/chip8-interpreter )
+add_subdirectory( source/tools/chip8-studio )
 
 #
 # tests

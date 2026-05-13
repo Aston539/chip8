@@ -22,18 +22,16 @@ Chip8VirtualProcessorExecuteCycle(
     _Inout_ CHIP8_VIRTUAL_MACHINE* Machine
 )
 {
-    if ( Processor->DelayTimer )
-    {
-        Processor->DelayTimer -= 1;
-
-        return TRUE;
-    }
+    //if ( Processor->DelayTimer )
+    //{
+    //    Processor->DelayTimer -= 1;
+    //
+    //    return TRUE;
+    //}
 
     CHIP8_INSTRUCTION Instruction = { };
     if ( Chip8DisassembleInstruction( ( CONST UINT16 CONST* )( Machine->Memory + Processor->ProgramCounter ), &Instruction ) == FALSE )
     {
-        __debugbreak( );
-
         return FALSE;
     }
 
@@ -55,10 +53,11 @@ Chip8VirtualProcessorExecuteCycle(
                 __debugbreak( );
             }
 
+            Processor->ProgramCounter = Processor->CallStack[ Processor->CallStackSize ];
+
             Processor->CallStack[ Processor->CallStackSize ] = NULL;
             Processor->CallStackSize -= 1;
 
-            Processor->ProgramCounter = Instruction.Operands[ 0 ].Address;
             Processor->CycleCount += 1;
 
         } break;
@@ -83,7 +82,7 @@ Chip8VirtualProcessorExecuteCycle(
             }
 
             Processor->CallStackSize += 1;
-            Processor->CallStack[ Processor->CallStackSize ] = Processor->ProgramCounter;
+            Processor->CallStack[ Processor->CallStackSize ] = Processor->ProgramCounter + sizeof( CHIP8_ENCODED_INSTRUCTION );
 
             Processor->ProgramCounter = Instruction.Operands[ 0 ].Address;
             Processor->CycleCount += 1;
@@ -92,40 +91,40 @@ Chip8VirtualProcessorExecuteCycle(
 
         case CHIP8_MNEMONIC_SE:
         {
-            BYTE SourceValue = NULL;
             BYTE DestinationValue = NULL;
+            BYTE SourceValue = NULL;
 
             switch ( Instruction.Operands[ 0 ].Type )
             {
                 case CHIP8_OPERAND_TYPE_REGISTER:
                 {
-                    SourceValue = Processor->Registers[ Instruction.Operands[ 0 ].Register ];
-
+                    DestinationValue = Processor->Registers[ Instruction.Operands[ 0 ].Register ];
+            
                 } break;
-
+            
                 case CHIP8_OPERAND_TYPE_IMMEDIATE:
                 {
-                    SourceValue = Instruction.Operands[ 0 ].Immediate;
-
+                    DestinationValue = Instruction.Operands[ 0 ].Immediate;
+            
                 } break;
-
+            
                 default: __debugbreak( );
             }
-
+            
             switch ( Instruction.Operands[ 1 ].Type )
             {
                 case CHIP8_OPERAND_TYPE_REGISTER:
                 {
                     SourceValue = Processor->Registers[ Instruction.Operands[ 1 ].Register ];
-
+            
                 } break;
-
+            
                 case CHIP8_OPERAND_TYPE_IMMEDIATE:
                 {
                     SourceValue = Instruction.Operands[ 1 ].Immediate;
-
+            
                 } break;
-
+            
                 default: __debugbreak( );
             }
 
@@ -144,40 +143,40 @@ Chip8VirtualProcessorExecuteCycle(
 
         case CHIP8_MNEMONIC_SNE:
         {
-            BYTE SourceValue = NULL;
             BYTE DestinationValue = NULL;
+            BYTE SourceValue = NULL;
 
             switch ( Instruction.Operands[ 0 ].Type )
             {
                 case CHIP8_OPERAND_TYPE_REGISTER:
                 {
-                    SourceValue = Processor->Registers[ Instruction.Operands[ 0 ].Register ];
-
+                    DestinationValue = Processor->Registers[ Instruction.Operands[ 0 ].Register ];
+            
                 } break;
-
+            
                 case CHIP8_OPERAND_TYPE_IMMEDIATE:
                 {
-                    SourceValue = Instruction.Operands[ 0 ].Immediate;
-
+                    DestinationValue = Instruction.Operands[ 0 ].Immediate;
+            
                 } break;
-
+            
                 default: __debugbreak( );
             }
-
+            
             switch ( Instruction.Operands[ 1 ].Type )
             {
                 case CHIP8_OPERAND_TYPE_REGISTER:
                 {
                     SourceValue = Processor->Registers[ Instruction.Operands[ 1 ].Register ];
-
+            
                 } break;
-
+            
                 case CHIP8_OPERAND_TYPE_IMMEDIATE:
                 {
                     SourceValue = Instruction.Operands[ 1 ].Immediate;
-
+            
                 } break;
-
+            
                 default: __debugbreak( );
             }
 
@@ -219,7 +218,18 @@ Chip8VirtualProcessorExecuteCycle(
 
                 case CHIP8_OPERAND_TYPE_MEMORY_INDEX:
                 {
-                    Processor->MemoryIndex = Source->Address; break;
+                    if ( Destination->Flags & CHIP8_OPERAND_FLAG_MEMORY_ACCESS &&
+                         Source->Type == CHIP8_OPERAND_TYPE_REGISTER &&
+                         Source->Flags & CHIP8_OPERAND_FLAG_BINARY_CODED_DECIMAL )
+                    {
+                        *( BYTE* )( &Machine->Memory[ Processor->MemoryIndex + 0 ] ) = Processor->Registers[ Source->Register ] / 100;
+                        *( BYTE* )( &Machine->Memory[ Processor->MemoryIndex + 1 ] ) = ( Processor->Registers[ Source->Register ] / 10 ) % 10;
+                        *( BYTE* )( &Machine->Memory[ Processor->MemoryIndex + 2 ] ) = Processor->Registers[ Source->Register ] % 10;
+                    }
+                    else
+                    {
+                        Processor->MemoryIndex = Source->Address;
+                    }
 
                 } break;
 
@@ -284,37 +294,41 @@ Chip8VirtualProcessorExecuteCycle(
             CONST PCHIP8_OPERAND Destination = &Instruction.Operands[ 0 ];
             CONST PCHIP8_OPERAND Source = &Instruction.Operands[ 1 ];
 
-            BYTE SourceValue = NULL;
-            switch ( Source->Type )
-            {
-                case CHIP8_OPERAND_TYPE_REGISTER: SourceValue = Processor->Registers[ Source->Register ]; break;
-                case CHIP8_OPERAND_TYPE_IMMEDIATE: SourceValue = Source->Immediate; break;
-
-                default: __debugbreak( );
-            }
-
             switch ( Destination->Type )
             {
-                //
-                // i think technically if source is immediate you dont apply flags on a overflow so this would violate that
-                //
                 case CHIP8_OPERAND_TYPE_REGISTER:
                 {
-                    UINT16 Result = Processor->Registers[ Destination->Register ] + Processor->Registers[ Source->Register ];
-                    if ( Result > 255 )
+                    if ( Source->Type == CHIP8_OPERAND_TYPE_REGISTER )
                     {
-                        Processor->Registers[ CHIP8_REGISTER_FLAGS ] = 1;
+                        UINT16 Result = Processor->Registers[ Destination->Register ] + Processor->Registers[ Source->Register ];
+
+                        Processor->Registers[ Destination->Register ] = Result & 0xFF;
+
+                        if ( Result > 0xFF )
+                        {
+                            Processor->Registers[ CHIP8_REGISTER_FLAGS ] = 1;
+                        }
+                        else
+                        {
+                            Processor->Registers[ CHIP8_REGISTER_FLAGS ] = 0;
+                        }
+                    }
+                    else if ( Source->Type == CHIP8_OPERAND_TYPE_IMMEDIATE )
+                    {
+                        Processor->Registers[ Destination->Register ] += Source->Immediate;
                     }
                     else
                     {
-                        Processor->Registers[ CHIP8_REGISTER_FLAGS ] = 0;
+                        __debugbreak( );
                     }
-
-                    Processor->Registers[ Destination->Register ] = Processor->Registers[ Destination->Register ] + SourceValue;
 
                 } break;
 
-                case CHIP8_OPERAND_TYPE_MEMORY_INDEX: Processor->MemoryIndex += SourceValue; break;
+                case CHIP8_OPERAND_TYPE_MEMORY_INDEX:
+                {
+                    Processor->MemoryIndex += Processor->Registers[ Source->Register ];
+
+                } break;
 
                 default: __debugbreak( );
             }
@@ -329,7 +343,7 @@ Chip8VirtualProcessorExecuteCycle(
             CONST PCHIP8_OPERAND Destination = &Instruction.Operands[ 0 ];
             CONST PCHIP8_OPERAND Source = &Instruction.Operands[ 1 ];
 
-            if ( Processor->Registers[ Destination->Register ] > Processor->Registers[ Source->Register ] )
+            if ( Processor->Registers[ Destination->Register ] >= Processor->Registers[ Source->Register ] )
             {
                 Processor->Registers[ CHIP8_REGISTER_FLAGS ] = 1;
             }
@@ -351,7 +365,7 @@ Chip8VirtualProcessorExecuteCycle(
             CONST PCHIP8_OPERAND Destination = &Instruction.Operands[ 0 ];
             CONST PCHIP8_OPERAND Source = &Instruction.Operands[ 1 ];
 
-            if ( Processor->Registers[ Destination->Register ] & 0b00000001 )
+            if ( Processor->Registers[ Source->Register ] & 0b00000001 )
             {
                 Processor->Registers[ CHIP8_REGISTER_FLAGS ] = 1;
             }
@@ -360,7 +374,8 @@ Chip8VirtualProcessorExecuteCycle(
                 Processor->Registers[ CHIP8_REGISTER_FLAGS ] = 0;
             }
 
-            Processor->Registers[ Destination->Register ] /= 2;
+            Processor->Registers[ Destination->Register ] = Processor->Registers[ Source->Register ];
+            Processor->Registers[ Destination->Register ] >>= 1;
 
             Processor->ProgramCounter += sizeof( CHIP8_ENCODED_INSTRUCTION );
             Processor->CycleCount += 1;
@@ -372,7 +387,7 @@ Chip8VirtualProcessorExecuteCycle(
             CONST PCHIP8_OPERAND Destination = &Instruction.Operands[ 0 ];
             CONST PCHIP8_OPERAND Source = &Instruction.Operands[ 1 ];
 
-            if ( Processor->Registers[ Source->Register ] > Processor->Registers[ Destination->Register ] )
+            if ( Processor->Registers[ Source->Register ] >= Processor->Registers[ Destination->Register ] )
             {
                 Processor->Registers[ CHIP8_REGISTER_FLAGS ] = 1;
             }
@@ -382,7 +397,7 @@ Chip8VirtualProcessorExecuteCycle(
             }
 
             Processor->Registers[ Destination->Register ] = Processor->Registers[ Source->Register ] -
-                Processor->Registers[ Destination->Register ];
+                                                            Processor->Registers[ Destination->Register ];
 
             Processor->ProgramCounter += sizeof( CHIP8_ENCODED_INSTRUCTION );
             Processor->CycleCount += 1;
@@ -394,7 +409,7 @@ Chip8VirtualProcessorExecuteCycle(
             CONST PCHIP8_OPERAND Destination = &Instruction.Operands[ 0 ];
             CONST PCHIP8_OPERAND Source = &Instruction.Operands[ 1 ];
 
-            if ( Processor->Registers[ Destination->Register ] & 0b10000000 )
+            if ( Processor->Registers[ Source->Register ] & 0b10000000 )
             {
                 Processor->Registers[ CHIP8_REGISTER_FLAGS ] = 1;
             }
@@ -403,7 +418,8 @@ Chip8VirtualProcessorExecuteCycle(
                 Processor->Registers[ CHIP8_REGISTER_FLAGS ] = 0;
             }
 
-            Processor->Registers[ Destination->Register ] /= 2;
+            Processor->Registers[ Destination->Register ] = Processor->Registers[ Source->Register ];
+            Processor->Registers[ Destination->Register ] <<= 1;
 
             Processor->ProgramCounter += sizeof( CHIP8_ENCODED_INSTRUCTION );
             Processor->CycleCount += 1;
@@ -441,7 +457,10 @@ Chip8VirtualProcessorExecuteCycle(
             BYTE PressedKey = 0xFF;
             for ( BYTE Key = 0; Key < 16; Key++ )
             {
-                if ( Machine->Keypad[ Key ] )
+                BYTE PressedNow = Machine->Keypad[ Key ];
+                BYTE PressedBefore = Machine->PreviousKeypad[ Key ];
+
+                if ( PressedNow && PressedBefore == FALSE )
                 {
                     PressedKey = Key;
 
@@ -465,7 +484,7 @@ Chip8VirtualProcessorExecuteCycle(
         case CHIP8_MNEMONIC_RAND:
         {
             srand( __rdtsc( ) * ( ULONG64 )& Machine );
-            BYTE RandomByte = rand( ) % 255;
+            BYTE RandomByte = rand( ) % 0xFF;
 
             Processor->Registers[ Instruction.Operands[ 0 ].Register ] = ( RandomByte & Instruction.Operands[ 1 ].Immediate );
 
@@ -476,6 +495,8 @@ Chip8VirtualProcessorExecuteCycle(
 
         case CHIP8_MNEMONIC_DRAW:
         {
+            Processor->Registers[ CHIP8_REGISTER_FLAGS ] = 0;
+
             CONST BYTE X = Processor->Registers[ Instruction.Operands[ 0 ].Register ];
             CONST BYTE Y = Processor->Registers[ Instruction.Operands[ 1 ].Register ];
             CONST BYTE Height = Instruction.Operands[ 2 ].Immediate;

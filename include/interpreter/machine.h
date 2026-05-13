@@ -9,7 +9,9 @@ typedef struct _CHIP8_VIRTUAL_MACHINE
 {
     BYTE Memory[ 4096 ];
     
+    CHIP8_VIRTUAL_KEYPAD PreviousKeypad;
     CHIP8_VIRTUAL_KEYPAD Keypad;
+
     CHIP8_VIRTUAL_DISPLAY Display;
     CHIP8_VIRTUAL_PROCESSOR Processor;
 
