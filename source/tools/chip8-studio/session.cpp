@@ -68,6 +68,8 @@ CHIP8_DISASSEMBLED_PROGRAM* CHIP8_STUDIO_SESSION::GetDisassembly( )
 
 VOID CHIP8_STUDIO_SESSION::LoadProgram( CONST std::vector<BYTE>& Program )
 {
+    Chip8DisassembledProgramDestroy( &Disassembly );
+
     Chip8DisassembleProgram( Program.data( ), Program.size( ), &Disassembly );
 
     Chip8VirtualMachineStartup( &VirtualMachine );

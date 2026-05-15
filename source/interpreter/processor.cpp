@@ -22,13 +22,6 @@ Chip8VirtualProcessorExecuteCycle(
     _Inout_ CHIP8_VIRTUAL_MACHINE* Machine
 )
 {
-    //if ( Processor->DelayTimer )
-    //{
-    //    Processor->DelayTimer -= 1;
-    //
-    //    return TRUE;
-    //}
-
     CHIP8_INSTRUCTION Instruction = { };
     if ( Chip8DisassembleInstruction( ( CONST UINT16 CONST* )( Machine->Memory + Processor->ProgramCounter ), &Instruction ) == FALSE )
     {
