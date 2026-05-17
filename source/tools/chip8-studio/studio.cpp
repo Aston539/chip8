@@ -81,6 +81,10 @@ BOOL CHIP8_STUDIO::SetupViews( )
     CallStackView.setModel( &CallStackModel );
     CallStackView.setFont( PrimaryFont );
 
+    RegisterModel.SetSession( &Session );
+    RegisterView.setModel( &RegisterModel );
+    RegisterView.setFont( PrimaryFont );
+
     MemoryView.verticalHeader( )->hide( );
     DisassemblyView.verticalHeader( )->hide( );
 
@@ -88,9 +92,13 @@ BOOL CHIP8_STUDIO::SetupViews( )
     TopSplitter->addWidget( &DisassemblyView );
     TopSplitter->addWidget( &DisplayView );
 
+    BottomRightSplitter = new QSplitter( Qt::Vertical );
+    BottomRightSplitter->addWidget( &RegisterView );
+    BottomRightSplitter->addWidget( &CallStackView );
+
     BottomSplitter = new QSplitter( Qt::Horizontal );
     BottomSplitter->addWidget( &MemoryView );
-    BottomSplitter->addWidget( &CallStackView );
+    BottomSplitter->addWidget( BottomRightSplitter );
 
     MainSplitter = new QSplitter( Qt::Vertical );
     MainSplitter->addWidget( TopSplitter );
@@ -108,6 +116,7 @@ BOOL CHIP8_STUDIO::SetupConnections( )
     connect( &Session, &CHIP8_STUDIO_SESSION::Updated, &DisassemblyModel, &CHIP8_STUDIO_DISASSEMBLY_MODEL::Refresh );
     connect( &DisassemblyView,  &QTableView::clicked, &DisassemblyModel, &CHIP8_STUDIO_DISASSEMBLY_MODEL::OnCellClicked );
     connect( &Session, &CHIP8_STUDIO_SESSION::Updated, &CallStackModel, &CHIP8_STUDIO_CALLSTACK_MODEL::Refresh );
+    connect( &Session, &CHIP8_STUDIO_SESSION::Updated, &RegisterModel, &CHIP8_STUDIO_REGISTER_MODEL::Refresh );
 
     return TRUE;
 }
