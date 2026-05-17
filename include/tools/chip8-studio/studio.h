@@ -13,6 +13,7 @@
 #include "displayview.h"
 #include "disassemblymodel.h"
 #include "memorymodel.h"
+#include "callstackmodel.h"
 
 class CHIP8_STUDIO : public QMainWindow
 {
@@ -26,9 +27,11 @@ private:
 
     CHIP8_STUDIO_MEMORY_MODEL MemoryModel;
     CHIP8_STUDIO_DISASSEMBLY_MODEL DisassemblyModel;
+    CHIP8_STUDIO_CALLSTACK_MODEL CallStackModel;
 
     QTableView MemoryView;
     QTableView DisassemblyView;
+    QTableView CallStackView;
 
 private:
 
@@ -38,6 +41,7 @@ private:
     QAction* StepAction;
 
     QSplitter* MainSplitter;
+    QSplitter* BottomSplitter;
     QSplitter* TopSplitter;
 
 private:

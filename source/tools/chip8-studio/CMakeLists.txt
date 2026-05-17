@@ -11,11 +11,13 @@ qt_add_executable(chip8-studio
 	displayview.cpp
 	memorymodel.cpp
 	disassemblymodel.cpp
+	callstackmodel.cpp
     ${CMAKE_SOURCE_DIR}/include/tools/chip8-studio/session.h
     ${CMAKE_SOURCE_DIR}/include/tools/chip8-studio/sessionview.h
     ${CMAKE_SOURCE_DIR}/include/tools/chip8-studio/displayview.h
     ${CMAKE_SOURCE_DIR}/include/tools/chip8-studio/disassemblymodel.h
     ${CMAKE_SOURCE_DIR}/include/tools/chip8-studio/memorymodel.h
+    ${CMAKE_SOURCE_DIR}/include/tools/chip8-studio/callstackmodel.h
     ${CMAKE_SOURCE_DIR}/include/tools/chip8-studio/studio.h
 )
 

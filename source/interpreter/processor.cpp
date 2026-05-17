@@ -46,10 +46,8 @@ Chip8VirtualProcessorExecuteCycle(
                 __debugbreak( );
             }
 
-            Processor->ProgramCounter = Processor->CallStack[ Processor->CallStackSize ];
-
-            Processor->CallStack[ Processor->CallStackSize ] = NULL;
             Processor->CallStackSize -= 1;
+            Processor->ProgramCounter = Processor->CallStack[ Processor->CallStackSize ];
 
             Processor->CycleCount += 1;
 
@@ -74,8 +72,8 @@ Chip8VirtualProcessorExecuteCycle(
                 __debugbreak( );
             }
 
-            Processor->CallStackSize += 1;
             Processor->CallStack[ Processor->CallStackSize ] = Processor->ProgramCounter + sizeof( CHIP8_ENCODED_INSTRUCTION );
+            Processor->CallStackSize += 1;
 
             Processor->ProgramCounter = Instruction.Operands[ 0 ].Address;
             Processor->CycleCount += 1;
