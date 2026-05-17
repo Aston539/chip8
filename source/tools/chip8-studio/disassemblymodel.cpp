@@ -77,7 +77,7 @@ INT CHIP8_STUDIO_DISASSEMBLY_MODEL::rowCount( CONST QModelIndex& Parent ) CONST
 
 INT CHIP8_STUDIO_DISASSEMBLY_MODEL::columnCount( CONST QModelIndex& Parent ) CONST
 {
-    return 3;
+    return 4;
 }
 
 QVariant CHIP8_STUDIO_DISASSEMBLY_MODEL::data( CONST QModelIndex& Index, INT Role ) CONST
@@ -93,9 +93,20 @@ QVariant CHIP8_STUDIO_DISASSEMBLY_MODEL::data( CONST QModelIndex& Index, INT Rol
     {
         switch ( Index.column( ) )
         {
-            case 0: return Row.AddressText;
-            case 1: return Row.BytesText;
-            case 2: return Row.InstructionText;
+            case 0:
+            {
+                if ( Session->HasBreakpoint( Row.Address ) )
+                {
+                    return "●";
+                }
+
+                return "";
+            }
+
+
+            case 1: return Row.AddressText;
+            case 2: return Row.BytesText;
+            case 3: return Row.InstructionText;
         }
     }
 
@@ -128,12 +139,28 @@ QVariant CHIP8_STUDIO_DISASSEMBLY_MODEL::headerData( INT Section, Qt::Orientatio
 
     switch ( Section )
     {
-        case 0: return "Address";
-        case 1: return "Opcode";
-        case 2: return "Instruction";
+        case 0: return "";
+        case 1: return "Address";
+        case 2: return "Opcode";
+        case 3: return "Instruction";
     }
 
     return QVariant( );
+}
+
+VOID CHIP8_STUDIO_DISASSEMBLY_MODEL::OnCellClicked( CONST QModelIndex& Index )
+{
+    if ( Index.column( ) != NULL )
+    {
+        return;
+    }
+
+    CHIP8_STUDIO_DISASSEMBLY_MODEL* Model = ( CHIP8_STUDIO_DISASSEMBLY_MODEL* )Index.model( );
+    CONST CHIP8_STUDIO_DISASSEMBLY_ROW& Row = Model->Rows.at( Index.row( ) );
+
+    Session->ToggleBreakpoint( Row.Address );
+
+    emit Model->dataChanged( Index, Index );
 }
 
 VOID CHIP8_STUDIO_DISASSEMBLY_MODEL::Refresh( )

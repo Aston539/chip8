@@ -37,6 +37,7 @@ private:
 public:
 
     VOID Rebuild( );
+    VOID OnCellClicked( CONST QModelIndex& Cell );
 
 public:
 
@@ -45,6 +46,7 @@ public:
 
     QVariant data( CONST QModelIndex& Index, INT Role ) CONST OVERRIDE;
     QVariant headerData( INT Section, Qt::Orientation Orientation, INT Role ) CONST OVERRIDE;
+
 
 public slots:
 

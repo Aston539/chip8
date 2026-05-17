@@ -98,6 +98,7 @@ BOOL CHIP8_STUDIO::SetupConnections( )
     connect( &Session,  &CHIP8_STUDIO_SESSION::Updated, &DisplayView, QOverload<>::of( &QWidget::update ) );
     connect( &Session, &CHIP8_STUDIO_SESSION::Updated, &MemoryModel, &CHIP8_STUDIO_MEMORY_MODEL::Refresh );
     connect( &Session, &CHIP8_STUDIO_SESSION::Updated, &DisassemblyModel, &CHIP8_STUDIO_DISASSEMBLY_MODEL::Refresh );
+    connect( &DisassemblyView,  &QTableView::clicked, &DisassemblyModel, &CHIP8_STUDIO_DISASSEMBLY_MODEL::OnCellClicked );
 
     return TRUE;
 }
