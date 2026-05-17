@@ -16,14 +16,17 @@ BOOL CHIP8_STUDIO_SESSION::Setup( )
 
 VOID CHIP8_STUDIO_SESSION::Step( )
 {
-    if ( Breakpoints.contains( VirtualMachine.Processor.ProgramCounter ) )
-    {
-        emit BreakpointHit( VirtualMachine.Processor.ProgramCounter );
-
-        Pause( );
-
-        return;
-    }
+    //
+    // we want to ignore breakpoints when stepping as its already fine grained execution control
+    // 
+    //if ( Breakpoints.contains( VirtualMachine.Processor.ProgramCounter ) )
+    //{
+    //    emit BreakpointHit( VirtualMachine.Processor.ProgramCounter );
+    //
+    //    Pause( );
+    //
+    //    return;
+    //}
 
     Chip8VirtualMachineExecuteProgramCycle( &VirtualMachine );
 
@@ -35,6 +38,14 @@ VOID CHIP8_STUDIO_SESSION::Run( )
     if ( Running )
     {
         return;
+    }
+
+    //
+    // if program execution has been resumed on a breakpoint, step over the breakpoint
+    //
+    if ( Breakpoints.contains( VirtualMachine.Processor.ProgramCounter ) )
+    {
+        Step( );
     }
 
     Running = TRUE;
