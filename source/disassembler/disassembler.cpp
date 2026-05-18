@@ -717,7 +717,7 @@ Chip8FormatOperand(
     {
         case CHIP8_OPERAND_TYPE_REGISTER:
         {
-            PrintedSize += snprintf( Buffer + PrintedSize, BufferSize - PrintedSize, "R%X", Operand->Register );
+            PrintedSize += snprintf( Buffer + PrintedSize, BufferSize - PrintedSize, "R%d", Operand->Register );
 
             if ( Operand->Flags & CHIP8_OPERAND_FLAG_BINARY_CODED_DECIMAL )
             {

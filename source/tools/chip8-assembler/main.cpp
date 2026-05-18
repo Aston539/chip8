@@ -40,5 +40,24 @@ IsArgumentPath(
 
 int main( int ArgumentCount, char** Arguments )
 {
-    
+    if ( ArgumentCount < 2 )
+    {
+        DisplayUsage( );
+
+        return 1;
+    }
+
+    if ( IsArgumentPath( Arguments[ 1 ] ) )
+    {
+
+    }
+    else
+    {
+        for ( ULONG StatementIndex = 1; 
+                    StatementIndex < ArgumentCount; 
+                    StatementIndex++ )
+        {
+            LPCSTR Statement = Arguments[ StatementIndex ];
+        }
+    }
 }
