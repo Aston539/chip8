@@ -200,7 +200,7 @@ Chip8VirtualProcessorExecuteCycle(
                         case CHIP8_OPERAND_TYPE_IMMEDIATE:    Processor->Registers[ Destination->Register ] = Source->Immediate; break;
                         case CHIP8_OPERAND_TYPE_MEMORY_INDEX: Processor->Registers[ Destination->Register ] = Processor->MemoryIndex; break;
                         case CHIP8_OPERAND_TYPE_DELAY_TIMER:  Processor->Registers[ Destination->Register ] = Processor->DelayTimer; break;
-                        case CHIP8_OPERAND_TYPE_SOUND_TIMER:  Processor->Registers[ Destination->Register ] = Processor->SoundTimer; break;
+                        //case CHIP8_OPERAND_TYPE_SOUND_TIMER:  Processor->Registers[ Destination->Register ] = Processor->SoundTimer; break; <- not supported in CHIP8
 
                         default: __debugbreak( );
                     }

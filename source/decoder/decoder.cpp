@@ -51,7 +51,6 @@ Chip8DecodeInstruction(
         case CHIP8_OPCODE_SET_IDX:
         case CHIP8_OPCODE_JMP_REL:
         {
-            //( ( ( UINT16 )( Instruction[ 1 ] & 0x0F ) << 8 ) | Instruction[ 0 ] ) 
             DecodedInstruction->Address = ( ( ( UINT16 )( DecodedInstruction->High & 0x0F ) << 8 ) | DecodedInstruction->Low );
             DecodedInstruction->OpcodeKey = ( DecodedInstruction->Opcode << 12 );
 
@@ -60,7 +59,7 @@ Chip8DecodeInstruction(
         } break;
 
         //
-        // register, 8 byte immediate
+        // register, 8 bit immediate
         //
         case CHIP8_OPCODE_SE:
         case CHIP8_OPCODE_SNE:
@@ -83,7 +82,7 @@ Chip8DecodeInstruction(
         } break;
 
         //
-        // register, register
+        // register, register, extended opcode
         //
         case CHIP8_OPCODE_ALU:
         {
@@ -120,6 +119,9 @@ Chip8DecodeInstruction(
 
         } break;
 
+        //
+        // register, register
+        //
         case CHIP8_OPCODE_SRE:
         case CHIP8_OPCODE_SRNE:
         {
