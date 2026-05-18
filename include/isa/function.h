@@ -55,7 +55,10 @@ Chip8FunctionDestroy(
             Chip8BasicBlockDestroy( Function->BasicBlocks[ BasicBlockIndex ] );
         }
 
-        free( Function->BasicBlocks );
+        if ( Function->BasicBlocks )
+        {
+            free( Function->BasicBlocks );
+        }
     }
 
     if ( Function->ControlFlowGraph )
@@ -86,10 +89,39 @@ Chip8FunctionRemoveBasicBlock(
     _In_ CHIP8_BASIC_BLOCK* BasicBlock
 )
 {
-    Function->BasicBlocksCount -= 1;
-    Function->BasicBlocks = ( CHIP8_BASIC_BLOCK** )realloc( Function->BasicBlocks, Function->BasicBlocksCount * sizeof( CHIP8_BASIC_BLOCK* ) );
+    BYTE BlockRemoveIndex = -1;
+    for ( BYTE BlockIndex = NULL;
+               BlockIndex < Function->BasicBlocksCount;
+               BlockIndex++ )
+    {
+        if ( Function->BasicBlocks[ BlockIndex ] == BasicBlock )
+        {
+            BlockRemoveIndex = BlockIndex;
 
-    Function->BasicBlocks[ Function->BasicBlocksCount - 1 ] = BasicBlock;
+            break;
+        }
+    }
+
+    if ( BlockRemoveIndex == ( BYTE )-1 )
+    {
+        return;
+    }
+
+    memmove( &Function->BasicBlocks[ BlockRemoveIndex ],
+             &Function->BasicBlocks[ BlockRemoveIndex + 1 ],
+             ( Function->BasicBlocksCount - BlockRemoveIndex - 1 ) * sizeof( CHIP8_BASIC_BLOCK* ) );
+
+    Function->BasicBlocksCount -= 1;
+
+    if ( Function->BasicBlocksCount == 0 )
+    {
+        free( Function->BasicBlocks );
+        Function->BasicBlocks = NULL;
+    }
+    else
+    {
+        Function->BasicBlocks = ( CHIP8_BASIC_BLOCK** )realloc( Function->BasicBlocks, Function->BasicBlocksCount * sizeof( CHIP8_BASIC_BLOCK* ) );
+    }
 }
 
 FORCEINLINE
@@ -108,7 +140,7 @@ Chip8FunctionLookupBasicBlock(
         {
             if ( BasicBlock )
             {
-                *BasicBlock = ( CHIP8_BASIC_BLOCK* )&Function->BasicBlocks[ BlockIndex ];
+                *BasicBlock = Function->BasicBlocks[ BlockIndex ];
             }
 
             return TRUE;

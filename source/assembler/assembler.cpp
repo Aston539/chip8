@@ -193,7 +193,7 @@ Chip8AssembleInstruction(
                 //
                 // register, immediate
                 //
-                case CHIP8_OPCODE_SET_REGISTER:
+                case CHIP8_OPCODE_KEY_SET_VX_IMM:
                 {
                     RegisterX = Instruction->Operands[ 0 ].Register;
                     Immediate = Instruction->Operands[ 1 ].Immediate;
