@@ -63,7 +63,7 @@ Chip8FunctionDestroy(
 
     if ( Function->ControlFlowGraph )
     {
-        free( Function->ControlFlowGraph );
+        Chip8ControlFlowGraphDestroy( Function->ControlFlowGraph );
     }
 
     free( Function );

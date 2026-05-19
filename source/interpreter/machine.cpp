@@ -159,7 +159,7 @@ Chip8VirtualMachineLoadFontSet(
                 }
             }
 
-            Machine->Memory[ FontsetBase +( Character * 5 ) + Row ] = Value;
+            Machine->Memory[ FontsetBase + ( Character * 5 ) + Row ] = Value;
         }
     }
 }
