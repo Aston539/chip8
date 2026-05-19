@@ -217,6 +217,11 @@ Chip8VirtualProcessorExecuteCycle(
                         *( BYTE* )( &Machine->Memory[ Processor->MemoryIndex + 1 ] ) = ( Processor->Registers[ Source->Register ] / 10 ) % 10;
                         *( BYTE* )( &Machine->Memory[ Processor->MemoryIndex + 2 ] ) = Processor->Registers[ Source->Register ] % 10;
                     }
+                    else if ( Source->Type == CHIP8_OPERAND_TYPE_REGISTER &&
+                              Source->Flags & CHIP8_OPERAND_FLAG_SPRITE_INDEX )
+                    {
+                        Processor->MemoryIndex = CHIP8_VIRTUAL_MACHINE_FONTSET_BASE + ( Processor->Registers[ Source->Register ] * 5 );
+                    }
                     else
                     {
                         Processor->MemoryIndex = Source->Address;

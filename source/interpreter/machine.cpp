@@ -6,7 +6,8 @@
 STATIC
 VOID
 Chip8VirtualMachineLoadFontSet(
-    _Inout_ CHIP8_VIRTUAL_MACHINE* Machine
+    _Inout_ CHIP8_VIRTUAL_MACHINE* Machine,
+    _In_ UINT16 FontsetBase
 )
 {
     STATIC LPCSTR Chip8FontCharacters[ 16 ][ 5 ] = {
@@ -158,7 +159,7 @@ Chip8VirtualMachineLoadFontSet(
                 }
             }
 
-            Machine->Memory[ ( Character * 5 ) + Row ] = Value;
+            Machine->Memory[ FontsetBase +( Character * 5 ) + Row ] = Value;
         }
     }
 }
@@ -181,7 +182,7 @@ Chip8VirtualMachineStartup(
     //
     // load font set into memory
     //
-    Chip8VirtualMachineLoadFontSet( Machine );
+    Chip8VirtualMachineLoadFontSet( Machine, CHIP8_VIRTUAL_MACHINE_FONTSET_BASE );
 }
 
 BOOL

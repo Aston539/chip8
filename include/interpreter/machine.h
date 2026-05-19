@@ -5,6 +5,8 @@
 #include "display.h"
 #include "keypad.h"
 
+#define CHIP8_VIRTUAL_MACHINE_FONTSET_BASE 0x50
+
 typedef struct _CHIP8_VIRTUAL_MACHINE
 {
     BYTE Memory[ 4096 ];
