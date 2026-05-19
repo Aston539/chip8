@@ -201,7 +201,7 @@ Chip8AssembleInstruction(
                 } break;
 
                 //
-                // register
+                // pseudo, register
                 //
                 case CHIP8_OPCODE_KEY_SYSTEM_GET_DELAY_TIMER:
                 case CHIP8_OPCODE_KEY_SYSTEM_STORE_BCD:
@@ -209,12 +209,12 @@ Chip8AssembleInstruction(
                 case CHIP8_OPCODE_KEY_SYSTEM_SET_DELAY_TIMER:
                 case CHIP8_OPCODE_KEY_SYSTEM_SET_SOUND_TIMER:
                 {
-                    RegisterX = Instruction->Operands[ 0 ].Register;
+                    RegisterX = Instruction->Operands[ 1 ].Register;
 
                 } break;
 
                 //
-                // address
+                // pseudo, address
                 //
                 case CHIP8_OPCODE_KEY_SET_IDX:
                 {
