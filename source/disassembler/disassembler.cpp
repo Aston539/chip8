@@ -744,7 +744,7 @@ Chip8FormatOperand(
 
         case CHIP8_OPERAND_TYPE_IMMEDIATE:
         {
-            PrintedSize += snprintf( Buffer + PrintedSize, BufferSize - PrintedSize, "%03lX", Operand->Immediate );
+            PrintedSize += snprintf( Buffer + PrintedSize, BufferSize - PrintedSize, "%03X", Operand->Immediate );
 
         } break;
 
