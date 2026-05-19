@@ -226,13 +226,13 @@ Chip8VirtualProcessorExecuteCycle(
 
                 case CHIP8_OPERAND_TYPE_DELAY_TIMER:
                 {
-                    Processor->DelayTimer = Processor->Registers[ Destination->Register ];
+                    Processor->DelayTimer = Processor->Registers[ Source->Register ];
 
                 } break;
 
                 case CHIP8_OPERAND_TYPE_SOUND_TIMER:
                 {
-                    Processor->SoundTimer = Processor->Registers[ Destination->Register ];
+                    Processor->SoundTimer = Processor->Registers[ Source->Register ];
 
                 } break;
 
