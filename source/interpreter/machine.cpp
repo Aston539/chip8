@@ -150,7 +150,7 @@ Chip8VirtualMachineLoadFontSet(
         {
             BYTE Value = NULL;
             for ( BYTE Column = NULL;
-                       Column < 5;
+                       Column < 4;
                        Column++ )
             {
                 if ( Chip8FontCharacters[ Character ][ Row ][ Column ] == '#' )
