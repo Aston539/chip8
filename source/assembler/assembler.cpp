@@ -140,7 +140,7 @@ Chip8AssembleInstruction(
                     switch ( Instruction->Operands[ 1 ].Type )
                     {
                         case CHIP8_OPERAND_TYPE_REGISTER:    OpcodeKey = CHIP8_OPCODE_KEY_ALU_MOV; break;
-                        case CHIP8_OPERAND_TYPE_IMMEDIATE:   OpcodeKey = CHIP8_OPCODE_SET_REGISTER; break;
+                        case CHIP8_OPERAND_TYPE_IMMEDIATE:   OpcodeKey = CHIP8_OPCODE_KEY_SET_VX_IMM; break;
                         case CHIP8_OPERAND_TYPE_DELAY_TIMER: OpcodeKey = CHIP8_OPCODE_KEY_SYSTEM_GET_DELAY_TIMER; break;
 
                         default: return NULL;
