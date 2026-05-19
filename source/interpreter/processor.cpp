@@ -12,6 +12,7 @@ Chip8VirtualProcessorInitialise(
     Processor->DelayTimer = NULL;
     Processor->SoundTimer = NULL;
     Processor->MemoryIndex = NULL;
+    Processor->CallStackSize = NULL;
     memset( Processor->Registers, NULL, sizeof( Processor->Registers ) );
     memset( Processor->CallStack, NULL, sizeof( Processor->CallStack ) );
 }
