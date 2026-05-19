@@ -171,6 +171,7 @@ Chip8VirtualMachineStartup(
 {
     memset( &Machine->Keypad, NULL, sizeof( Machine->Keypad ) );
     memset( &Machine->PreviousKeypad, NULL, sizeof( Machine->PreviousKeypad ) );
+    memset( Machine->Memory, NULL, sizeof( Machine->Memory ) );
 
     Chip8VirtualDisplayClear( &Machine->Display );
 
