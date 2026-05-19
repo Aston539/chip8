@@ -688,6 +688,7 @@ Chip8GetMnemonicString(
         case CHIP8_MNEMONIC_ADD:    return "ADD";
         case CHIP8_MNEMONIC_SUB:    return "SUB";
         case CHIP8_MNEMONIC_SHR:    return "SHR";
+        case CHIP8_MNEMONIC_SUBN:   return "SUBN";
         case CHIP8_MNEMONIC_SHL:    return "SHL";
         case CHIP8_MNEMONIC_SKP:    return "SKP";
         case CHIP8_MNEMONIC_SKNP:   return "SKNP";
