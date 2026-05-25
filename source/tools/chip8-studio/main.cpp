@@ -18,7 +18,7 @@
 
 #include <tools/chip8-studio/studio.h>
 
-int main( int argc, char* argv[ ]  )
+int main( int argc, char* argv[ ] )
 {
     QApplication Application( argc, argv );
 

@@ -1,7 +1,7 @@
 #ifndef _CHIP8_DISASSEMBLED_INSTRUCTION_H_
 #define _CHIP8_DISASSEMBLED_INSTRUCTION_H_
 
-#include <decoder/decoder.h>
+#include <isa/isa.h>
 
 #define CHIP8_MNEMONIC_NONE                       0x00
 #define CHIP8_MNEMONIC_CLS                        0x01
@@ -44,7 +44,6 @@
 
 typedef BYTE CHIP8_MNEMONIC;
 typedef BYTE CHIP8_OPERAND_TYPE;
-typedef BYTE CHIP8_REGISTER;
 typedef UINT16 CHIP8_ADDRESS;
 
 typedef struct _CHIP8_OPERAND

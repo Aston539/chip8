@@ -1,5 +1,6 @@
 #include <cstdio>
 
+#include <decoder/decoder.h>
 #include <disassembler/disassembler.h>
 
 STATIC
