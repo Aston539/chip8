@@ -19,11 +19,11 @@ QVariant CHIP8_STUDIO_MEMORY_MODEL::data( CONST QModelIndex& Index, INT Role ) C
 
     if ( Index.column( ) == 0 )
     {
-        UINT16 Address = Index.row( ) * 16;
+        CHIP8_ADDRESS Address = Index.row( ) * 16;
         return QString( "%1" ).arg( Address, 4, 16, QChar( '0' ) ).toUpper( );
     }
 
-    UINT16 Address = ( Index.row( ) * 16 ) + ( Index.column( ) - 1 );
+    CHIP8_ADDRESS Address = ( Index.row( ) * 16 ) + ( Index.column( ) - 1 );
     BYTE Value = Session->GetMachine( )->Memory[ Address ];
 
     return QString( "%1" ).arg( Value, 2, 16, QChar( '0' ) ).toUpper( );

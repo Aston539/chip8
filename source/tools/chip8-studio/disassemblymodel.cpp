@@ -11,9 +11,9 @@ VOID CHIP8_STUDIO_DISASSEMBLY_MODEL::Rebuild( )
     CONST CHIP8_DISASSEMBLED_PROGRAM* Program = Session->GetDisassembly( );
 
     Rows.clear( );
-    for ( BYTE FunctionIndex = NULL;
-               FunctionIndex < Program->Functions.size( );
-               FunctionIndex++ )
+    for ( SIZE_T FunctionIndex = NULL;
+                 FunctionIndex < Program->Functions.size( );
+                 FunctionIndex++ )
     {
         CONST CHIP8_MACHINE_FUNCTION& Function = Program->Functions[ FunctionIndex ];
 
@@ -40,7 +40,7 @@ VOID CHIP8_STUDIO_DISASSEMBLY_MODEL::Rebuild( )
                 // hacky calculation of instruction address but should hold up for the use cases of a basic block
                 // and machine instructions
                 //
-                UINT16 InstructionAddress = BasicBlock.Address + ( InstructionIndex * sizeof( CHIP8_ENCODED_INSTRUCTION ) );
+                CHIP8_ADDRESS InstructionAddress = BasicBlock.Address + ( InstructionIndex * sizeof( CHIP8_ENCODED_INSTRUCTION ) );
                 UINT16 InstructionOpcode = *( UINT16* )&Session->GetMachine( )->Memory[ InstructionAddress ];
 
                 CHIP8_STUDIO_DISASSEMBLY_ROW InstructionRow = { };

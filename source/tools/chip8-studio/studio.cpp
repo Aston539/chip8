@@ -230,6 +230,11 @@ VOID CHIP8_STUDIO::LoadProgram( )
 
     File.seekg( NULL, std::ios::end );
     std::streamsize FileSize = File.tellg( );
+    if ( FileSize <= NULL )
+    {
+        return;
+    }
+
     File.seekg( NULL, std::ios::beg );
 
     Program.resize( FileSize );
