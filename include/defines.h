@@ -1,7 +1,7 @@
 #ifndef _CHIP8_DEFINES_H_
 #define _CHIP8_DEFINES_H_
 
-#if defined( _WIN32s )
+#if defined( _WIN32 )
 
 #include <wtypes.h>
 
