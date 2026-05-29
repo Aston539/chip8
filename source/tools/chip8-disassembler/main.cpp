@@ -146,6 +146,7 @@ DisplayInstructionsDisassembly(
                          InstructionIndex++ )
             {
                 UINT16 InstructionAddress = BasicBlock.Address + ( InstructionIndex * sizeof( CHIP8_ENCODED_INSTRUCTION ) );
+
                 CHAR InstructionText[ 64 + 1 ] = { };
                 Chip8FormatInstruction( &BasicBlock.Instructions[ InstructionIndex ], InstructionText, 64 );
 
@@ -153,7 +154,7 @@ DisplayInstructionsDisassembly(
                 printf( "    " );
                 printf( "%02X %02X", Code[ InstructionAddress - 512 ], Code[ InstructionAddress - 512 + 1 ] );
                 printf( "    " );
-                printf( InstructionText );
+                printf( "%s", InstructionText );
                 printf( "\n" );
             }
 
@@ -176,32 +177,14 @@ DisplayInstructionsDisassembly(
 
 int main( int ArgumentCount, char** Arguments )
 {
-    std::vector<BYTE> Code = { };
-
     if ( ArgumentCount < 2 )
     {
-        //DisplayUsage( );
+        DisplayUsage( );
         
-        //return 1;
-
-
-        //std::ifstream File( "C:\\Users\\Aston\\Documents\\Projects\\aston-work\\chip8\\roms\\IBM Logo.ch8", std::ios::in | std::ios::binary );
-        //std::ifstream File( "C:\\Users\\Aston\\Documents\\Projects\\aston-work\\chip8\\roms\\3-corax+.ch8", std::ios::in | std::ios::binary );
-        std::ifstream File( "C:\\Users\\Aston\\Downloads\\Connect 4 [David Winter].ch8", std::ios::in | std::ios::binary );
-        if ( File.is_open( ) == FALSE )
-        {
-            return 1;
-        }
-
-        File.seekg( NULL, std::ios::end );
-        std::streamsize FileSize = File.tellg( );
-        File.seekg( NULL, std::ios::beg );
-
-        Code.resize( FileSize );
-        File.read( ( CHAR* )Code.data( ), FileSize );
+        return 1;
     }
 
-    //std::vector<BYTE> Code = { };
+    std::vector<BYTE> Code = { };
     if ( ArgumentCount == 2 && IsArgumentPath( Arguments[ 1 ] ) )
     {
         std::ifstream File( Arguments[ 1 ], std::ios::in | std::ios::binary );
@@ -240,8 +223,6 @@ int main( int ArgumentCount, char** Arguments )
             }
             else
             {
-                system( "cls" );
-
                 DisplayUsage( );
 
                 return 1;
@@ -250,8 +231,6 @@ int main( int ArgumentCount, char** Arguments )
     }
 
     DisplayInstructionsDisassembly( Code.data( ), Code.size( ) );
-
-    while ( getchar( ) == 0 );
 
     return 0;
 }

@@ -98,31 +98,10 @@ WindowProcedure(
 
 BOOL
 SetupVirtualMachine(
-    VOID
+    _In_ CONST std::vector<BYTE>& Program
 )
 {
     Chip8VirtualMachineStartup( &Chip8VirtualMachine );
-
-    std::vector<BYTE> Program = { };
-    //std::ifstream File( "C:\\Users\\Aston\\Downloads\\Pong 2 (Pong hack) [David Winter, 1997].ch8", std::ios::in | std::ios::binary );
-    //std::ifstream File( "C:\\Users\\Aston\\Downloads\\Hi - Lo[ Jef Winsor, 1978 ].ch8", std::ios::in | std::ios::binary );
-    //std::ifstream File( "C:\\Users\\Aston\\Downloads\\Space Invaders [David Winter].ch8", std::ios::in | std::ios::binary );
-    //std::ifstream File( "C:\\Users\\Aston\\Downloads\\Connect 4 [David Winter].ch8", std::ios::in | std::ios::binary );
-    //std::ifstream File( "C:\\Users\\Aston\\Documents\\Projects\\aston-work\\chip8\\roms\\1-chip8-logo.ch8", std::ios::in | std::ios::binary );
-    //std::ifstream File( "C:\\Users\\Aston\\Documents\\Projects\\aston-work\\chip8\\roms\\2-ibm-logo.ch8", std::ios::in | std::ios::binary );
-    //std::ifstream File( "C:\\Users\\Aston\\Documents\\Projects\\aston-work\\chip8\\roms\\3-corax+.ch8", std::ios::in | std::ios::binary );
-    std::ifstream File( "C:\\Users\\Aston\\Documents\\Projects\\aston-work\\chip8\\roms\\4-flags.ch8", std::ios::in | std::ios::binary );
-    if ( File.is_open( ) == FALSE )
-    {
-        return 1;
-    }
-
-    File.seekg( NULL, std::ios::end );
-    std::streamsize FileSize = File.tellg( );
-    File.seekg( NULL, std::ios::beg );
-
-    Program.resize( FileSize );
-    File.read( ( CHAR* )Program.data( ), FileSize );
 
     return Chip8VirtualMachineLoadProgram( &Chip8VirtualMachine, Program.data( ), Program.size( ) );
 }
@@ -131,7 +110,7 @@ SetupVirtualMachine(
 
 int main( )
 {
-    if ( SetupVirtualMachine( ) == FALSE )
+    if ( SetupVirtualMachine( { } ) == FALSE )
     {
         return 1;
     }
