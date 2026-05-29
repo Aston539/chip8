@@ -1,5 +1,4 @@
 
-set( Qt6_DIR "C:/Qt/6.11.0/msvc2022_64/lib/cmake/Qt6" )
 find_package( Qt6 REQUIRED COMPONENTS Widgets )
 
 qt_standard_project_setup( )

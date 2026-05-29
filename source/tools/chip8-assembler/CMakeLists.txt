@@ -1,5 +1,5 @@
 
-set( RE2C_EXECUTABLE "C:/msys64/ucrt64/bin/re2c.exe" )
+find_program(RE2C_EXECUTABLE re2c REQUIRED)
 
 set( LEXER_SRC ${CMAKE_CURRENT_SOURCE_DIR}/lexer.re )
 set( LEXER_OUT ${CMAKE_CURRENT_BINARY_DIR}/lexer.cpp )
