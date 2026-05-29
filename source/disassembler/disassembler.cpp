@@ -434,15 +434,17 @@ Chip8DiscoverBasicBlocks(
 
                 CHIP8_ADDRESS SuccessorAddress = Instruction.Operands[ 0 ].Address;
 
+                Function.ControlFlowGraph.Nodes[ BasicBlockAddress ].AddSuccessor( SuccessorAddress );
+                Function.ControlFlowGraph.Nodes[ SuccessorAddress ].AddPredecessor( BasicBlockAddress );
+
                 //
                 // check whether we have already discovered this block, if not, discover it
                 //
                 if ( Function.ControlFlowGraph.LookupNodeByAddress( SuccessorAddress, NULL ) == FALSE )
                 {
-                    if ( Chip8DiscoverBasicBlocks( ProgramSpace, Function, SuccessorAddress ) )
+                    if ( Chip8DiscoverBasicBlocks( ProgramSpace, Function, SuccessorAddress ) == FALSE )
                     {
-                        Function.ControlFlowGraph.Nodes[ BasicBlockAddress ].AddSuccessor( SuccessorAddress );
-                        Function.ControlFlowGraph.Nodes[ SuccessorAddress ].AddPredecessor( BasicBlockAddress );
+                        return FALSE;
                     }
                 }
 
@@ -466,27 +468,31 @@ Chip8DiscoverBasicBlocks(
                 CHIP8_ADDRESS SuccessSucessorAddress = ProgramCounter + ( sizeof( CHIP8_ENCODED_INSTRUCTION ) * 1 );
                 CHIP8_ADDRESS FailSucessorAddress = ProgramCounter + ( sizeof( CHIP8_ENCODED_INSTRUCTION ) * 2 );
 
+                Function.ControlFlowGraph.Nodes[ BasicBlockAddress ].AddSuccessor( SuccessSucessorAddress );
+                Function.ControlFlowGraph.Nodes[ SuccessSucessorAddress ].AddPredecessor( BasicBlockAddress );
+
                 //
                 // check whether we have already discovered this block, if not, discover it
                 //
                 if ( Function.ControlFlowGraph.LookupNodeByAddress( SuccessSucessorAddress, NULL ) == FALSE )
                 {
-                    if ( Chip8DiscoverBasicBlocks( ProgramSpace, Function, SuccessSucessorAddress ) )
+                    if ( Chip8DiscoverBasicBlocks( ProgramSpace, Function, SuccessSucessorAddress ) == FALSE )
                     {
-                        Function.ControlFlowGraph.Nodes[ BasicBlockAddress ].AddSuccessor( SuccessSucessorAddress );
-                        Function.ControlFlowGraph.Nodes[ SuccessSucessorAddress ].AddPredecessor( BasicBlockAddress );
+                        return FALSE;
                     }
                 }
+
+                Function.ControlFlowGraph.Nodes[ BasicBlockAddress ].AddSuccessor( FailSucessorAddress );
+                Function.ControlFlowGraph.Nodes[ FailSucessorAddress ].AddPredecessor( BasicBlockAddress );
 
                 //
                 // check whether we have already discovered this block, if not, discover it
                 //
                 if ( Function.ControlFlowGraph.LookupNodeByAddress( FailSucessorAddress, NULL ) == FALSE )
                 {
-                    if ( Chip8DiscoverBasicBlocks( ProgramSpace, Function, FailSucessorAddress ) )
+                    if ( Chip8DiscoverBasicBlocks( ProgramSpace, Function, FailSucessorAddress ) == FALSE )
                     {
-                        Function.ControlFlowGraph.Nodes[ BasicBlockAddress ].AddSuccessor( FailSucessorAddress );
-                        Function.ControlFlowGraph.Nodes[ FailSucessorAddress ].AddPredecessor( BasicBlockAddress );
+                        return FALSE;
                     }
                 }
 
