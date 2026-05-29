@@ -3,7 +3,7 @@
 
 #include <defines.h>
 
-#include <unordered_set>
+#include <set>
 
 class CHIP8_CONTROL_FLOW_NODE
 {
@@ -11,8 +11,8 @@ public:
 
     CHIP8_ADDRESS Address;
 
-    std::unordered_set<CHIP8_ADDRESS> Predecessors;
-    std::unordered_set<CHIP8_ADDRESS> Successors;
+    std::set<CHIP8_ADDRESS> Predecessors;
+    std::set<CHIP8_ADDRESS> Successors;
 
 public:
 
