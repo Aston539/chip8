@@ -393,9 +393,6 @@ Chip8DiscoverBasicBlocks(
     _In_ UINT16 BasicBlockAddress
 )
 {
-    CHIP8_CONTROL_FLOW_NODE CurrentBlockNode = { };
-    CurrentBlockNode.Address = BasicBlockAddress;
-
     UINT16 ProgramCounter = BasicBlockAddress;
     while ( ProgramCounter )
     {
@@ -412,7 +409,7 @@ Chip8DiscoverBasicBlocks(
                 //
                 // record the current block
                 //
-                Function.ControlFlowGraph.Nodes[ BasicBlockAddress ] = CurrentBlockNode;
+                Function.ControlFlowGraph.AddNode( BasicBlockAddress );
 
                 return TRUE;
 
@@ -433,12 +430,9 @@ Chip8DiscoverBasicBlocks(
                 //
                 // record the current block
                 //
-                Function.ControlFlowGraph.Nodes[ BasicBlockAddress ] = CurrentBlockNode;
+                Function.ControlFlowGraph.AddNode( BasicBlockAddress );
 
                 CHIP8_ADDRESS SuccessorAddress = Instruction.Operands[ 0 ].Address;
-
-                Function.ControlFlowGraph.Nodes[ BasicBlockAddress ].AddSuccessor( SuccessorAddress );
-                Function.ControlFlowGraph.Nodes[ SuccessorAddress ].AddPredecessor( BasicBlockAddress );
 
                 //
                 // check whether we have already discovered this block, if not, discover it
@@ -450,6 +444,8 @@ Chip8DiscoverBasicBlocks(
                         return FALSE;
                     }
                 }
+
+                Function.ControlFlowGraph.AddEdge( BasicBlockAddress, SuccessorAddress );
 
                 return TRUE;
 
@@ -466,13 +462,10 @@ Chip8DiscoverBasicBlocks(
                 //
                 // record the current block
                 //
-                Function.ControlFlowGraph.Nodes[ BasicBlockAddress ] = CurrentBlockNode;
+                Function.ControlFlowGraph.AddNode( BasicBlockAddress );
 
                 CHIP8_ADDRESS SuccessSucessorAddress = ProgramCounter + ( sizeof( CHIP8_ENCODED_INSTRUCTION ) * 1 );
                 CHIP8_ADDRESS FailSucessorAddress = ProgramCounter + ( sizeof( CHIP8_ENCODED_INSTRUCTION ) * 2 );
-
-                Function.ControlFlowGraph.Nodes[ BasicBlockAddress ].AddSuccessor( SuccessSucessorAddress );
-                Function.ControlFlowGraph.Nodes[ SuccessSucessorAddress ].AddPredecessor( BasicBlockAddress );
 
                 //
                 // check whether we have already discovered this block, if not, discover it
@@ -485,8 +478,7 @@ Chip8DiscoverBasicBlocks(
                     }
                 }
 
-                Function.ControlFlowGraph.Nodes[ BasicBlockAddress ].AddSuccessor( FailSucessorAddress );
-                Function.ControlFlowGraph.Nodes[ FailSucessorAddress ].AddPredecessor( BasicBlockAddress );
+                Function.ControlFlowGraph.AddEdge( BasicBlockAddress, SuccessSucessorAddress );
 
                 //
                 // check whether we have already discovered this block, if not, discover it
@@ -498,6 +490,8 @@ Chip8DiscoverBasicBlocks(
                         return FALSE;
                     }
                 }
+
+                Function.ControlFlowGraph.AddEdge( BasicBlockAddress, FailSucessorAddress );
 
                 return TRUE;
 
@@ -541,7 +535,7 @@ Chip8DisassembleProgramFunction(
         return FALSE;
     }
 
-    for ( CONST CHIP8_ADDRESS& NodeAddress : Function.ControlFlowGraph.Nodes | std::views::keys )
+    for ( CONST CHIP8_ADDRESS& NodeAddress : Function.ControlFlowGraph.GetNodes( ) | std::views::keys )
     {
         if ( Chip8DisassembleProgramBasicBlock( ProgramSpace, &Function, NodeAddress ) == FALSE )
         {
