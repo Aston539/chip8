@@ -2,6 +2,8 @@
 #include <interpreter/machine.h>
 #include <disassembler/disassembler.h>
 
+#include <assert.h>
+
 VOID
 Chip8VirtualProcessorInitialise(
     _Inout_ CHIP8_VIRTUAL_PROCESSOR* Processor
@@ -47,10 +49,7 @@ Chip8VirtualProcessorExecuteCycle(
 
         case CHIP8_MNEMONIC_RET:
         {
-            if ( Processor->CallStackSize == NULL )
-            {
-                __debugbreak( );
-            }
+            assert( Processor->CallStackSize == NULL, "Program attempted to return without any call stack" );
 
             Processor->CallStackSize -= 1;
             Processor->ProgramCounter = Processor->CallStack[ Processor->CallStackSize ];
@@ -73,10 +72,7 @@ Chip8VirtualProcessorExecuteCycle(
 
         case CHIP8_MNEMONIC_CALL:
         {
-            if ( Processor->CallStackSize >= ARRAYSIZE( Processor->CallStack ) )
-            {
-                __debugbreak( );
-            }
+            assert( Processor->CallStackSize >= ARRAYSIZE( Processor->CallStack ), "Program overran callstack" );
 
             Processor->CallStack[ Processor->CallStackSize ] = Processor->ProgramCounter + sizeof( CHIP8_ENCODED_INSTRUCTION );
             Processor->CallStackSize += 1;
@@ -105,7 +101,7 @@ Chip8VirtualProcessorExecuteCycle(
             
                 } break;
             
-                default: __debugbreak( );
+                default: assert( "CHIP8_MNEMONIC_SE Invalid Operand[ 0 ] Type" );
             }
             
             switch ( Instruction.Operands[ 1 ].Type )
@@ -121,8 +117,8 @@ Chip8VirtualProcessorExecuteCycle(
                     SourceValue = Instruction.Operands[ 1 ].Immediate;
             
                 } break;
-            
-                default: __debugbreak( );
+
+                default: assert( "CHIP8_MNEMONIC_SE Invalid Operand[ 1 ] Type" );
             }
 
             if ( SourceValue == DestinationValue )
@@ -156,8 +152,8 @@ Chip8VirtualProcessorExecuteCycle(
                     DestinationValue = Instruction.Operands[ 0 ].Immediate;
             
                 } break;
-            
-                default: __debugbreak( );
+
+                default: assert( "CHIP8_MNEMONIC_SNE Invalid Operand[ 0 ] Type" );
             }
             
             switch ( Instruction.Operands[ 1 ].Type )
@@ -173,8 +169,8 @@ Chip8VirtualProcessorExecuteCycle(
                     SourceValue = Instruction.Operands[ 1 ].Immediate;
             
                 } break;
-            
-                default: __debugbreak( );
+
+                default: assert( "CHIP8_MNEMONIC_SNE Invalid Operand[ 1 ] Type" );
             }
 
             if ( SourceValue != DestinationValue )
@@ -208,7 +204,7 @@ Chip8VirtualProcessorExecuteCycle(
                         case CHIP8_MACHINE_OPERAND_TYPE_DELAY_TIMER:  Processor->Registers[ Destination->Register ] = Processor->DelayTimer; break;
                         //case CHIP8_MACHINE_OPERAND_TYPE_SOUND_TIMER:  Processor->Registers[ Destination->Register ] = Processor->SoundTimer; break; <- not supported in CHIP8
 
-                        default: __debugbreak( );
+                        default: assert( "CHIP8_MNEMONIC_MOV::CHIP8_MACHINE_OPERAND_TYPE_REGISTER Invalid Operand[ 1 ] Type" );
                     }
 
                 } break;
@@ -247,7 +243,7 @@ Chip8VirtualProcessorExecuteCycle(
 
                 } break;
 
-                default: __debugbreak( );
+                default: assert( "CHIP8_MNEMONIC_MOV Invalid Operand[ 0 ] Type" );
             }
 
             Processor->ProgramCounter += sizeof( CHIP8_ENCODED_INSTRUCTION );
@@ -321,7 +317,7 @@ Chip8VirtualProcessorExecuteCycle(
                     }
                     else
                     {
-                        __debugbreak( );
+                        assert( "CHIP8_MNEMONIC_ADD Invalid Operand[ 1 ] Type" );
                     }
 
                 } break;
@@ -332,7 +328,7 @@ Chip8VirtualProcessorExecuteCycle(
 
                 } break;
 
-                default: __debugbreak( );
+                default: assert( "CHIP8_MNEMONIC_ADD Invalid Operand[ 0 ] Type" );
             }
 
             Processor->ProgramCounter += sizeof( CHIP8_ENCODED_INSTRUCTION );
@@ -558,7 +554,7 @@ Chip8VirtualProcessorExecuteCycle(
 
         } break;
 
-        default: __debugbreak( );
+        default: assert( "Invalid Mnemonic" );
     }
 
     return TRUE;

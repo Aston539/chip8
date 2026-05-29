@@ -488,7 +488,7 @@ Chip8AssembleInstruction(
 
         } break;
 
-        default: __debugbreak( );
+        default: return NULL;
     }
 
     return Chip8EncodeInstruction( OpcodeKey, RegisterX, RegisterY, Immediate, Address );
