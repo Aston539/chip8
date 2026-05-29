@@ -15,6 +15,11 @@ Chip8VirtualProcessorInitialise(
     Processor->CallStackSize = NULL;
     memset( Processor->Registers, NULL, sizeof( Processor->Registers ) );
     memset( Processor->CallStack, NULL, sizeof( Processor->CallStack ) );
+
+    //
+    // seed with tickcount and stack address of processor pointer
+    //
+    srand( __rdtsc( ) * ( ULONG64 )&Processor );
 }
 
 BOOL
@@ -480,8 +485,7 @@ Chip8VirtualProcessorExecuteCycle(
 
         case CHIP8_MNEMONIC_RAND:
         {
-            srand( __rdtsc( ) * ( ULONG64 )& Machine );
-            BYTE RandomByte = rand( ) % 0xFF;
+            BYTE RandomByte = rand( ) % 0x100;
 
             Processor->Registers[ Instruction.Operands[ 0 ].Register ] = ( RandomByte & Instruction.Operands[ 1 ].Immediate );
 
