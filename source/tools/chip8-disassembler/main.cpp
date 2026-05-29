@@ -187,7 +187,7 @@ int main( int ArgumentCount, char** Arguments )
 
         //std::ifstream File( "C:\\Users\\Aston\\Documents\\Projects\\aston-work\\chip8\\roms\\IBM Logo.ch8", std::ios::in | std::ios::binary );
         //std::ifstream File( "C:\\Users\\Aston\\Documents\\Projects\\aston-work\\chip8\\roms\\3-corax+.ch8", std::ios::in | std::ios::binary );
-        std::ifstream File( "C:\\Users\\Aston\\Documents\\Projects\\aston-work\\chip8\\roms\\4-flags.ch8", std::ios::in | std::ios::binary );
+        std::ifstream File( "C:\\Users\\Aston\\Downloads\\Connect 4 [David Winter].ch8", std::ios::in | std::ios::binary );
         if ( File.is_open( ) == FALSE )
         {
             return 1;

@@ -2,6 +2,7 @@
 
 #include <algorithm>
 #include <ranges>
+#include <set>
 
 #include <decoder/decoder.h>
 #include <disassembler/disassembler.h>
@@ -560,6 +561,8 @@ Chip8DiscoverFunctions(
         Functions.push_back( Function );
     }
 
+    std::set<CHIP8_ADDRESS> VisitedAddresses = { };
+
     UINT16 ProgramCounter = Function;
     while ( ProgramCounter )
     {
@@ -568,6 +571,13 @@ Chip8DiscoverFunctions(
         {
             return;
         }
+
+        if ( VisitedAddresses.contains( ProgramCounter ) )
+        {
+            return;
+        }
+
+        VisitedAddresses.insert( ProgramCounter );
 
         switch ( Instruction.Mnemonic )
         {
@@ -585,14 +595,21 @@ Chip8DiscoverFunctions(
             case CHIP8_MNEMONIC_JMP:
             {
                 //
-                // skip over indirect control flow or forever loops
+                // skip over indirect control flow
                 //
-                if ( Instruction.Operands[ 0 ].Flags & CHIP8_MACHINE_OPERAND_FLAG_RELATIVE_R0 ||
-                     Instruction.Operands[ 0 ].Address == ProgramCounter )
+                if ( Instruction.Operands[ 0 ].Flags & CHIP8_MACHINE_OPERAND_FLAG_RELATIVE_R0 )
                 {
                     ProgramCounter += sizeof( CHIP8_ENCODED_INSTRUCTION );
 
                     break;
+                }
+
+                //
+                // stop searching on infinite loop
+                //
+                if ( Instruction.Operands[ 0 ].Address == ProgramCounter )
+                {
+                    return;
                 }
 
                 //
