@@ -308,6 +308,11 @@ Chip8AssembleInstruction(
 
                 case CHIP8_MACHINE_OPERAND_TYPE_MEMORY_INDEX:
                 {
+                    if ( Instruction->Operands[ 1 ].Type != CHIP8_MACHINE_OPERAND_TYPE_REGISTER )
+                    {
+                        return NULL;
+                    }
+
                     OpcodeKey = CHIP8_OPCODE_KEY_SYSTEM_ADD_IDX;
                     RegisterX = Instruction->Operands[ 1 ].Register;
 
