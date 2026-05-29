@@ -141,9 +141,9 @@ DisplayInstructionsDisassembly(
                 printf( "\n" );
             }
 
-            for ( BYTE InstructionIndex = NULL;
-                       InstructionIndex < BasicBlock.Instructions.size( );
-                       InstructionIndex++ )
+            for ( SIZE_T InstructionIndex = NULL;
+                         InstructionIndex < BasicBlock.Instructions.size( );
+                         InstructionIndex++ )
             {
                 UINT16 InstructionAddress = BasicBlock.Address + ( InstructionIndex * sizeof( CHIP8_ENCODED_INSTRUCTION ) );
                 CHAR InstructionText[ 64 + 1 ] = { };

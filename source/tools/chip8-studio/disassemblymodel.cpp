@@ -32,9 +32,9 @@ VOID CHIP8_STUDIO_DISASSEMBLY_MODEL::Rebuild( )
             LabelRow.InstructionText = "LABEL";
             Rows.push_back( LabelRow );
 
-            for ( BYTE InstructionIndex = NULL;
-                       InstructionIndex < BasicBlock.Instructions.size( );
-                       InstructionIndex++ )
+            for ( SIZE_T InstructionIndex = NULL;
+                         InstructionIndex < BasicBlock.Instructions.size( );
+                         InstructionIndex++ )
             {
                 //
                 // hacky calculation of instruction address but should hold up for the use cases of a basic block
