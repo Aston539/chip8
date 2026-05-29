@@ -30,6 +30,7 @@ Chip8InitializeRegisterOperand(
     Operand->Type = CHIP8_MACHINE_OPERAND_TYPE_REGISTER;
     Operand->Register = Register;
     Operand->Size = 8;
+    Operand->Flags = NULL;
 
     return TRUE;
 }
@@ -50,6 +51,7 @@ Chip8InitializeImmediateOperand(
     Operand->Type = CHIP8_MACHINE_OPERAND_TYPE_IMMEDIATE;
     Operand->Immediate = Immediate;
     Operand->Size = Size;
+    Operand->Flags = NULL;
 
     return TRUE;
 }
@@ -69,6 +71,7 @@ Chip8InitializeAddressOperand(
     Operand->Type = CHIP8_MACHINE_OPERAND_TYPE_ADDRESS;
     Operand->Address = Address;
     Operand->Size = 12;
+    Operand->Flags = NULL;
 
     return TRUE;
 }
@@ -514,13 +517,13 @@ Chip8DiscoverBasicBlocks(
     return FALSE;
 }
 
-VOID
+BOOL
 Chip8DiscoverFunctionBasicBlocks(
     _In_ BYTE* ProgramSpace,
     _Inout_ CHIP8_MACHINE_FUNCTION& Function
 )
 {
-    Chip8DiscoverBasicBlocks( ProgramSpace, Function, Function.Address );
+    return Chip8DiscoverBasicBlocks( ProgramSpace, Function, Function.Address );
 }
 
 BOOL
@@ -533,7 +536,10 @@ Chip8DisassembleProgramFunction(
     CHIP8_MACHINE_FUNCTION Function = { };
     Function.Address = FunctionAddress;
 
-    Chip8DiscoverFunctionBasicBlocks( ProgramSpace, Function );
+    if ( Chip8DiscoverFunctionBasicBlocks( ProgramSpace, Function ) == FALSE )
+    {
+        return FALSE;
+    }
 
     for ( CONST CHIP8_ADDRESS& NodeAddress : Function.ControlFlowGraph.Nodes | std::views::keys )
     {
