@@ -1,10 +1,10 @@
 #include <cstdlib>
 #include <cassert>
 
-#include <decoder/decoder.h>
-
 #define CATCH_CONFIG_MAIN
 #include <catch.hpp>
+
+#include <decoder/decoder.h>
 
 TEST_CASE( "CLS Instruction (00E0)", "[decoder]" )
 {
