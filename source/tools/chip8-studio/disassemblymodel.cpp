@@ -2,6 +2,8 @@
 
 #include <QColor>
 
+#include <ranges>
+
 VOID CHIP8_STUDIO_DISASSEMBLY_MODEL::Rebuild( )
 {
     beginResetModel( );
@@ -13,32 +15,32 @@ VOID CHIP8_STUDIO_DISASSEMBLY_MODEL::Rebuild( )
                FunctionIndex < Program->Functions.size( );
                FunctionIndex++ )
     {
-        CHIP8_FUNCTION* Function = Program->Functions[ FunctionIndex ];
+        CONST CHIP8_MACHINE_FUNCTION& Function = Program->Functions[ FunctionIndex ];
 
         CHIP8_STUDIO_DISASSEMBLY_ROW FunctionStartRow = { };
         FunctionStartRow.Type = CHIP8_STUDIO_DISASSEMBLY_ROW_TYPE_FUNCTION_START;
-        FunctionStartRow.AddressText = QString( "FUNCTION %1" ).arg( Function->Address, 4, 16, QChar( '0' ) ).toUpper( );
+        FunctionStartRow.AddressText = QString( "FUNCTION %1" ).arg( Function.Address, 4, 16, QChar( '0' ) ).toUpper( );
         FunctionStartRow.InstructionText = "FUNCTION START";
         Rows.push_back( FunctionStartRow );
 
-        for ( BYTE BlockIndex = NULL;
-                   BlockIndex < Function->BasicBlocksCount;
-                   BlockIndex++ )
+        for ( CONST CHIP8_MACHINE_BASIC_BLOCK& BasicBlock : Function.BasicBlocks | std::views::values )
         {
-            CHIP8_BASIC_BLOCK* Block = Function->BasicBlocks[ BlockIndex ];
-
             CHIP8_STUDIO_DISASSEMBLY_ROW LabelRow = { };
             LabelRow.Type = CHIP8_STUDIO_DISASSEMBLY_ROW_TYPE_LABEL;
-            LabelRow.Address = Block->Address;
-            LabelRow.AddressText = QString( "%1" ).arg( Block->Address, 4, 16, QChar( '0' ) ).toUpper( );
+            LabelRow.Address = BasicBlock.Address;
+            LabelRow.AddressText = QString( "%1" ).arg( BasicBlock.Address, 4, 16, QChar( '0' ) ).toUpper( );
             LabelRow.InstructionText = "LABEL";
             Rows.push_back( LabelRow );
 
             for ( BYTE InstructionIndex = NULL;
-                       InstructionIndex < Block->InstructionsCount;
+                       InstructionIndex < BasicBlock.Instructions.size( );
                        InstructionIndex++ )
             {
-                UINT16 InstructionAddress = Block->Address + ( InstructionIndex * sizeof( CHIP8_ENCODED_INSTRUCTION ) );
+                //
+                // hacky calculation of instruction address but should hold up for the use cases of a basic block
+                // and machine instructions
+                //
+                UINT16 InstructionAddress = BasicBlock.Address + ( InstructionIndex * sizeof( CHIP8_ENCODED_INSTRUCTION ) );
                 UINT16 InstructionOpcode = *( UINT16* )&Session->GetMachine( )->Memory[ InstructionAddress ];
 
                 CHIP8_STUDIO_DISASSEMBLY_ROW InstructionRow = { };
@@ -48,7 +50,7 @@ VOID CHIP8_STUDIO_DISASSEMBLY_MODEL::Rebuild( )
                 InstructionRow.BytesText = QString( "%1" ).arg( InstructionOpcode, 4, 16, QChar( '0' ) ).toUpper( );
 
                 CHAR InstructionFormat[ 64 + 1 ] = { };
-                if ( Chip8FormatInstruction( Block->Instructions[ InstructionIndex ], InstructionFormat, 64 ) == FALSE )
+                if ( Chip8FormatInstruction( &BasicBlock.Instructions[ InstructionIndex ], InstructionFormat, 64 ) == FALSE )
                 {
                     InstructionRow.InstructionText = QString( InstructionFormat );
                 }

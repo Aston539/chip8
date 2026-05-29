@@ -1,5 +1,8 @@
 #include <cstdio>
 
+#include <algorithm>
+#include <ranges>
+
 #include <decoder/decoder.h>
 #include <disassembler/disassembler.h>
 
@@ -15,7 +18,7 @@ Chip8IsValidRegister(
 STATIC
 BOOL
 Chip8InitializeRegisterOperand(
-    _Inout_ CHIP8_OPERAND* Operand,
+    _Inout_ CHIP8_MACHINE_OPERAND* Operand,
     _In_ BYTE Register
 )
 {
@@ -24,7 +27,7 @@ Chip8InitializeRegisterOperand(
         return FALSE;
     }
 
-    Operand->Type = CHIP8_OPERAND_TYPE_REGISTER;
+    Operand->Type = CHIP8_MACHINE_OPERAND_TYPE_REGISTER;
     Operand->Register = Register;
     Operand->Size = 8;
 
@@ -34,7 +37,7 @@ Chip8InitializeRegisterOperand(
 STATIC
 BOOL
 Chip8InitializeImmediateOperand(
-    _Inout_ CHIP8_OPERAND* Operand,
+    _Inout_ CHIP8_MACHINE_OPERAND* Operand,
     _In_ BYTE Immediate,
     _In_ BYTE Size
 )
@@ -44,7 +47,7 @@ Chip8InitializeImmediateOperand(
         return FALSE;
     }
 
-    Operand->Type = CHIP8_OPERAND_TYPE_IMMEDIATE;
+    Operand->Type = CHIP8_MACHINE_OPERAND_TYPE_IMMEDIATE;
     Operand->Immediate = Immediate;
     Operand->Size = Size;
 
@@ -54,7 +57,7 @@ Chip8InitializeImmediateOperand(
 STATIC
 BOOL
 Chip8InitializeAddressOperand(
-    _Inout_ CHIP8_OPERAND* Operand,
+    _Inout_ CHIP8_MACHINE_OPERAND* Operand,
     _In_ UINT16 Address
 )
 {
@@ -63,7 +66,7 @@ Chip8InitializeAddressOperand(
         return FALSE;
     }
 
-    Operand->Type = CHIP8_OPERAND_TYPE_ADDRESS;
+    Operand->Type = CHIP8_MACHINE_OPERAND_TYPE_ADDRESS;
     Operand->Address = Address;
     Operand->Size = 12;
 
@@ -73,7 +76,7 @@ Chip8InitializeAddressOperand(
 BOOL
 Chip8DisassembleInstruction(
     _In_ CONST UINT16* CONST Instruction,
-    _Inout_ CHIP8_INSTRUCTION* DisassembledInstruction
+    _Inout_ CHIP8_MACHINE_INSTRUCTION* DisassembledInstruction
 )
 {
     CHIP8_DECODED_INSTRUCTION Decoded = { };
@@ -210,7 +213,7 @@ Chip8DisassembleInstruction(
             DisassembledInstruction->OperandsCount = 1;
             Chip8InitializeAddressOperand( &DisassembledInstruction->Operands[ 0 ], Decoded.Address );
 
-            DisassembledInstruction->Operands[ 0 ].Flags |= CHIP8_OPERAND_FLAG_RELATIVE_R0;
+            DisassembledInstruction->Operands[ 0 ].Flags |= CHIP8_MACHINE_OPERAND_FLAG_RELATIVE_R0;
 
         } break;
 
@@ -220,7 +223,7 @@ Chip8DisassembleInstruction(
 
             Chip8InitializeRegisterOperand( &DisassembledInstruction->Operands[ 0 ], Decoded.RegisterX );
 
-            DisassembledInstruction->Operands[ 1 ].Type = CHIP8_OPERAND_TYPE_DELAY_TIMER;
+            DisassembledInstruction->Operands[ 1 ].Type = CHIP8_MACHINE_OPERAND_TYPE_DELAY_TIMER;
             DisassembledInstruction->Operands[ 1 ].Size = 8;
 
         } break;
@@ -229,7 +232,7 @@ Chip8DisassembleInstruction(
         {
             DisassembledInstruction->OperandsCount = 2;
 
-            DisassembledInstruction->Operands[ 0 ].Type = CHIP8_OPERAND_TYPE_DELAY_TIMER;
+            DisassembledInstruction->Operands[ 0 ].Type = CHIP8_MACHINE_OPERAND_TYPE_DELAY_TIMER;
             DisassembledInstruction->Operands[ 0 ].Size = 8;
 
             Chip8InitializeRegisterOperand( &DisassembledInstruction->Operands[ 1 ], Decoded.RegisterX );
@@ -240,7 +243,7 @@ Chip8DisassembleInstruction(
         {
             DisassembledInstruction->OperandsCount = 2;
 
-            DisassembledInstruction->Operands[ 0 ].Type = CHIP8_OPERAND_TYPE_SOUND_TIMER;
+            DisassembledInstruction->Operands[ 0 ].Type = CHIP8_MACHINE_OPERAND_TYPE_SOUND_TIMER;
             DisassembledInstruction->Operands[ 0 ].Size = 8;
 
             Chip8InitializeRegisterOperand( &DisassembledInstruction->Operands[ 1 ], Decoded.RegisterX );
@@ -251,7 +254,7 @@ Chip8DisassembleInstruction(
         {
             DisassembledInstruction->OperandsCount = 2;
 
-            DisassembledInstruction->Operands[ 0 ].Type = CHIP8_OPERAND_TYPE_MEMORY_INDEX;
+            DisassembledInstruction->Operands[ 0 ].Type = CHIP8_MACHINE_OPERAND_TYPE_MEMORY_INDEX;
             DisassembledInstruction->Operands[ 0 ].Size = 8;
 
             Chip8InitializeRegisterOperand( &DisassembledInstruction->Operands[ 1 ], Decoded.RegisterX );
@@ -262,7 +265,7 @@ Chip8DisassembleInstruction(
         {
             DisassembledInstruction->OperandsCount = 2;
 
-            DisassembledInstruction->Operands[ 0 ].Type = CHIP8_OPERAND_TYPE_MEMORY_INDEX;
+            DisassembledInstruction->Operands[ 0 ].Type = CHIP8_MACHINE_OPERAND_TYPE_MEMORY_INDEX;
             DisassembledInstruction->Operands[ 0 ].Size = 8;
 
             Chip8InitializeAddressOperand( &DisassembledInstruction->Operands[ 1 ], Decoded.Address );
@@ -273,11 +276,11 @@ Chip8DisassembleInstruction(
         {
             DisassembledInstruction->OperandsCount = 2;
 
-            DisassembledInstruction->Operands[ 0 ].Type = CHIP8_OPERAND_TYPE_MEMORY_INDEX;
+            DisassembledInstruction->Operands[ 0 ].Type = CHIP8_MACHINE_OPERAND_TYPE_MEMORY_INDEX;
             DisassembledInstruction->Operands[ 0 ].Size = 8;
 
             Chip8InitializeRegisterOperand( &DisassembledInstruction->Operands[ 1 ], Decoded.RegisterX );
-            DisassembledInstruction->Operands[ 1 ].Flags |= CHIP8_OPERAND_FLAG_SPRITE_INDEX;
+            DisassembledInstruction->Operands[ 1 ].Flags |= CHIP8_MACHINE_OPERAND_FLAG_SPRITE_INDEX;
 
         } break;
 
@@ -285,12 +288,12 @@ Chip8DisassembleInstruction(
         {
             DisassembledInstruction->OperandsCount = 2;
 
-            DisassembledInstruction->Operands[ 0 ].Type = CHIP8_OPERAND_TYPE_MEMORY_INDEX;
+            DisassembledInstruction->Operands[ 0 ].Type = CHIP8_MACHINE_OPERAND_TYPE_MEMORY_INDEX;
             DisassembledInstruction->Operands[ 0 ].Size = 8 * 3;
-            DisassembledInstruction->Operands[ 0 ].Flags |= CHIP8_OPERAND_FLAG_MEMORY_ACCESS;
+            DisassembledInstruction->Operands[ 0 ].Flags |= CHIP8_MACHINE_OPERAND_FLAG_MEMORY_ACCESS;
 
             Chip8InitializeRegisterOperand( &DisassembledInstruction->Operands[ 1 ], Decoded.RegisterX );
-            DisassembledInstruction->Operands[ 1 ].Flags |= CHIP8_OPERAND_FLAG_BINARY_CODED_DECIMAL;
+            DisassembledInstruction->Operands[ 1 ].Flags |= CHIP8_MACHINE_OPERAND_FLAG_BINARY_CODED_DECIMAL;
 
         } break;
 
@@ -312,39 +315,39 @@ Chip8DisassembleInstruction(
 BOOL
 Chip8DisassembleProgramBasicBlock(
     _In_ BYTE* ProgramSpace, // BYTE[ 4096 ]
-    _Inout_ CHIP8_FUNCTION* Function,
+    _Inout_ CHIP8_MACHINE_FUNCTION* Function,
     _In_ UINT16 BasicBlockAddress
 )
 {
-    if ( Chip8FunctionLookupBasicBlock( Function, BasicBlockAddress, NULL ) )
+    if ( Function->BasicBlocks.contains( BasicBlockAddress ) )
     {
         return FALSE;
     }
 
-    CHIP8_BASIC_BLOCK* BasicBlock = Chip8BasicBlockCreate( );
-    BasicBlock->Address = BasicBlockAddress;
+    CHIP8_MACHINE_BASIC_BLOCK BasicBlock = { };
+    BasicBlock.Address = BasicBlockAddress;
 
-    UINT16 ProgramCounter = BasicBlock->Address;
+    UINT16 ProgramCounter = BasicBlock.Address;
     while ( ProgramCounter )
     {
-        CHIP8_CONTROL_FLOW_NODE* CollidingNode = NULL;
-        if ( Chip8ControlFlowGraphLookupNodeByAddress( Function->ControlFlowGraph, ProgramCounter, &CollidingNode ) )
+        //
+        // are we colliding with another block?
+        //
+        if ( ProgramCounter != BasicBlockAddress && 
+             Function->ControlFlowGraph.LookupNodeByAddress( ProgramCounter, NULL ) )
         {
-            if ( CollidingNode->Address != BasicBlockAddress )
-            {
-                Chip8FunctionAddBasicBlock( Function, BasicBlock );
+            Function->BasicBlocks[ BasicBlockAddress ] = std::move( BasicBlock );
 
-                return TRUE;
-            }
+            return TRUE;
         }
 
-        CHIP8_INSTRUCTION* Instruction = Chip8CreateInstruction( );
-        if ( Chip8DisassembleInstruction( ( CONST UINT16 CONST* )( ProgramSpace + ProgramCounter ), Instruction ) == FALSE )
+        CHIP8_MACHINE_INSTRUCTION Instruction = { };
+        if ( Chip8DisassembleInstruction( ( CONST UINT16 CONST* )( ProgramSpace + ProgramCounter ), &Instruction ) == FALSE )
         {
             return FALSE;
         }
 
-        switch ( Instruction->Mnemonic )
+        switch ( Instruction.Mnemonic )
         {
             //
             // record instruction, end block
@@ -356,7 +359,7 @@ Chip8DisassembleProgramBasicBlock(
             case CHIP8_MNEMONIC_SKP:
             case CHIP8_MNEMONIC_SKNP:
             {
-                Chip8BasicBlockAddInstruction( BasicBlock, Instruction );
+                BasicBlock.Instructions.push_back( std::move( Instruction ) );
 
                 ProgramCounter = NULL;
 
@@ -367,7 +370,7 @@ Chip8DisassembleProgramBasicBlock(
             //
             default:
             {
-                Chip8BasicBlockAddInstruction( BasicBlock, Instruction );
+                BasicBlock.Instructions.push_back( std::move( Instruction ) );
 
                 ProgramCounter += sizeof( CHIP8_ENCODED_INSTRUCTION );
 
@@ -375,28 +378,28 @@ Chip8DisassembleProgramBasicBlock(
         }
     }
 
-    Chip8FunctionAddBasicBlock( Function, BasicBlock );
+    Function->BasicBlocks[ BasicBlockAddress ] = std::move( BasicBlock );
 
     return TRUE;
 }
 
-VOID
+BOOL
 Chip8DiscoverBasicBlocks(
     _In_ BYTE* ProgramSpace,
-    _Inout_ CHIP8_FUNCTION* Function,
+    _Inout_ CHIP8_MACHINE_FUNCTION& Function,
     _In_ UINT16 BasicBlockAddress
 )
 {
-    CHIP8_CONTROL_FLOW_NODE* CurrentBlockNode = Chip8ControlFlowNodeCreate( Function->ControlFlowGraph );
-    CurrentBlockNode->Address = BasicBlockAddress;
+    CHIP8_CONTROL_FLOW_NODE CurrentBlockNode = { };
+    CurrentBlockNode.Address = BasicBlockAddress;
 
     UINT16 ProgramCounter = BasicBlockAddress;
     while ( ProgramCounter )
     {
-        CHIP8_INSTRUCTION Instruction = { };
+        CHIP8_MACHINE_INSTRUCTION Instruction = { };
         if ( Chip8DisassembleInstruction( ( CONST UINT16 CONST* )( ProgramSpace + ProgramCounter ), &Instruction ) == FALSE )
         {
-            return;
+            return FALSE;
         }
 
         switch ( Instruction.Mnemonic )
@@ -406,9 +409,9 @@ Chip8DiscoverBasicBlocks(
                 //
                 // record the current block
                 //
-                Chip8ControlFlowGraphAddControlFlowNode( Function->ControlFlowGraph, CurrentBlockNode );
+                Function.ControlFlowGraph.Nodes[ BasicBlockAddress ] = CurrentBlockNode;
 
-                return;
+                return TRUE;
 
             } break;
 
@@ -417,7 +420,7 @@ Chip8DiscoverBasicBlocks(
             //
             case CHIP8_MNEMONIC_JMP:
             {
-                if ( Instruction.Operands[ 0 ].Flags & CHIP8_OPERAND_FLAG_RELATIVE_R0 )
+                if ( Instruction.Operands[ 0 ].Flags & CHIP8_MACHINE_OPERAND_FLAG_RELATIVE_R0 )
                 {
                     ProgramCounter += sizeof( CHIP8_ENCODED_INSTRUCTION );
 
@@ -427,27 +430,23 @@ Chip8DiscoverBasicBlocks(
                 //
                 // record the current block
                 //
-                Chip8ControlFlowGraphAddControlFlowNode( Function->ControlFlowGraph, CurrentBlockNode );
+                Function.ControlFlowGraph.Nodes[ BasicBlockAddress ] = CurrentBlockNode;
+
+                CHIP8_ADDRESS SuccessorAddress = Instruction.Operands[ 0 ].Address;
 
                 //
                 // check whether we have already discovered this block, if not, discover it
                 //
-                CHIP8_CONTROL_FLOW_NODE* SuccessorNode = NULL;
-                if ( Chip8ControlFlowGraphLookupNodeByAddress( Function->ControlFlowGraph, Instruction.Operands[ 0 ].Address, &SuccessorNode ) == FALSE )
+                if ( Function.ControlFlowGraph.LookupNodeByAddress( SuccessorAddress, NULL ) == FALSE )
                 {
-                    Chip8DiscoverBasicBlocks( ProgramSpace, Function, Instruction.Operands[ 0 ].Address );
-
-                    if ( Chip8ControlFlowGraphLookupNodeByAddress( Function->ControlFlowGraph, Instruction.Operands[ 0 ].Address, &SuccessorNode ) )
+                    if ( Chip8DiscoverBasicBlocks( ProgramSpace, Function, SuccessorAddress ) )
                     {
-                        //
-                        // create successor and predecessor links between our two nodes
-                        //
-                        Chip8ControlFlowNodeAddSuccessor( CurrentBlockNode, SuccessorNode->Address );
-                        Chip8ControlFlowNodeAddPredecessor( SuccessorNode, CurrentBlockNode->Address );
+                        Function.ControlFlowGraph.Nodes[ BasicBlockAddress ].AddSuccessor( SuccessorAddress );
+                        Function.ControlFlowGraph.Nodes[ SuccessorAddress ].AddPredecessor( BasicBlockAddress );
                     }
                 }
 
-                return;
+                return TRUE;
 
             } break;
 
@@ -462,45 +461,36 @@ Chip8DiscoverBasicBlocks(
                 //
                 // record the current block
                 //
-                Chip8ControlFlowGraphAddControlFlowNode( Function->ControlFlowGraph, CurrentBlockNode );
+                Function.ControlFlowGraph.Nodes[ BasicBlockAddress ] = CurrentBlockNode;
+
+                CHIP8_ADDRESS SuccessSucessorAddress = ProgramCounter + ( sizeof( CHIP8_ENCODED_INSTRUCTION ) * 1 );
+                CHIP8_ADDRESS FailSucessorAddress = ProgramCounter + ( sizeof( CHIP8_ENCODED_INSTRUCTION ) * 2 );
 
                 //
                 // check whether we have already discovered this block, if not, discover it
                 //
-                CHIP8_CONTROL_FLOW_NODE* SuccessNode = NULL;
-                if ( Chip8ControlFlowGraphLookupNodeByAddress( Function->ControlFlowGraph, ProgramCounter + ( sizeof( CHIP8_ENCODED_INSTRUCTION ) * 1 ), &SuccessNode ) == FALSE )
+                if ( Function.ControlFlowGraph.LookupNodeByAddress( SuccessSucessorAddress, NULL ) == FALSE )
                 {
-                    Chip8DiscoverBasicBlocks( ProgramSpace, Function, ProgramCounter + ( sizeof( CHIP8_ENCODED_INSTRUCTION ) * 1 ) );
-
-                    if ( Chip8ControlFlowGraphLookupNodeByAddress( Function->ControlFlowGraph, ProgramCounter + ( sizeof( CHIP8_ENCODED_INSTRUCTION ) * 1 ), &SuccessNode ) )
+                    if ( Chip8DiscoverBasicBlocks( ProgramSpace, Function, SuccessSucessorAddress ) )
                     {
-                        //
-                        // create successor and predecessor links between our two nodes
-                        //
-                        Chip8ControlFlowNodeAddSuccessor( CurrentBlockNode, SuccessNode->Address );
-                        Chip8ControlFlowNodeAddPredecessor( SuccessNode, CurrentBlockNode->Address );
+                        Function.ControlFlowGraph.Nodes[ BasicBlockAddress ].AddSuccessor( SuccessSucessorAddress );
+                        Function.ControlFlowGraph.Nodes[ SuccessSucessorAddress ].AddPredecessor( BasicBlockAddress );
                     }
                 }
 
                 //
                 // check whether we have already discovered this block, if not, discover it
                 //
-                CHIP8_CONTROL_FLOW_NODE* FailureNode = NULL;
-                if ( Chip8ControlFlowGraphLookupNodeByAddress( Function->ControlFlowGraph, ProgramCounter + ( sizeof( CHIP8_ENCODED_INSTRUCTION ) * 2 ), &FailureNode ) == FALSE )
+                if ( Function.ControlFlowGraph.LookupNodeByAddress( FailSucessorAddress, NULL ) == FALSE )
                 {
-                    Chip8DiscoverBasicBlocks( ProgramSpace, Function, ProgramCounter + ( sizeof( CHIP8_ENCODED_INSTRUCTION ) * 2 ) );
-
-                    if ( Chip8ControlFlowGraphLookupNodeByAddress( Function->ControlFlowGraph, ProgramCounter + ( sizeof( CHIP8_ENCODED_INSTRUCTION ) * 2 ), &FailureNode ) )
+                    if ( Chip8DiscoverBasicBlocks( ProgramSpace, Function, FailSucessorAddress ) )
                     {
-                        //
-                        // create successor and predecessor links between our two nodes
-                        //
-                        Chip8ControlFlowNodeAddSuccessor( CurrentBlockNode, FailureNode->Address );
-                        Chip8ControlFlowNodeAddPredecessor( FailureNode, CurrentBlockNode->Address );
+                        Function.ControlFlowGraph.Nodes[ BasicBlockAddress ].AddSuccessor( FailSucessorAddress );
+                        Function.ControlFlowGraph.Nodes[ FailSucessorAddress ].AddPredecessor( BasicBlockAddress );
                     }
                 }
 
-                return;
+                return TRUE;
 
             } break;
 
@@ -514,41 +504,17 @@ Chip8DiscoverBasicBlocks(
             } break;
         }
     }
+
+    return FALSE;
 }
 
 VOID
 Chip8DiscoverFunctionBasicBlocks(
     _In_ BYTE* ProgramSpace,
-    _Inout_ CHIP8_FUNCTION* Function
+    _Inout_ CHIP8_MACHINE_FUNCTION& Function
 )
 {
-    return Chip8DiscoverBasicBlocks( ProgramSpace, Function, Function->Address );
-}
-
-STATIC
-LONG32
-Chip8CompareBasicBlocks(
-    VOID CONST* A,
-    VOID CONST* B
-)
-{
-    CONST CHIP8_BASIC_BLOCK CONST* BlockA = *( CONST CHIP8_BASIC_BLOCK** )A;
-    CONST CHIP8_BASIC_BLOCK CONST* BlockB = *( CONST CHIP8_BASIC_BLOCK** )B;
-
-    return BlockA->Address - BlockB->Address;
-}
-
-STATIC
-LONG32
-Chip8CompareControlFlowNodes(
-    VOID CONST* A,
-    VOID CONST* B
-)
-{
-    CONST CHIP8_CONTROL_FLOW_NODE CONST* NodeA = *( CONST CHIP8_CONTROL_FLOW_NODE** )A;
-    CONST CHIP8_CONTROL_FLOW_NODE CONST* NodeB = *( CONST CHIP8_CONTROL_FLOW_NODE** )B;
-
-    return NodeA->Address - NodeB->Address;
+    Chip8DiscoverBasicBlocks( ProgramSpace, Function, Function.Address );
 }
 
 BOOL
@@ -558,24 +524,18 @@ Chip8DisassembleProgramFunction(
     _Inout_ CHIP8_DISASSEMBLED_PROGRAM* Disassembly
 )
 {
-    CHIP8_FUNCTION* Function = Chip8FunctionCreate( );
-    Function->Address = FunctionAddress;
+    CHIP8_MACHINE_FUNCTION Function = { };
+    Function.Address = FunctionAddress;
 
     Chip8DiscoverFunctionBasicBlocks( ProgramSpace, Function );
 
-    for ( BYTE NodeIndex = NULL;
-               NodeIndex < Function->ControlFlowGraph->NodesCount;
-               NodeIndex++ )
+    for ( CONST CHIP8_ADDRESS& NodeAddress : Function.ControlFlowGraph.Nodes | std::views::keys )
     {
-        CONST CHIP8_CONTROL_FLOW_NODE CONST* CurrentBlockNode = Function->ControlFlowGraph->Nodes[ NodeIndex ];
-        if ( Chip8DisassembleProgramBasicBlock( ProgramSpace, Function, CurrentBlockNode->Address ) == FALSE )
+        if ( Chip8DisassembleProgramBasicBlock( ProgramSpace, &Function, NodeAddress ) == FALSE )
         {
             return FALSE;
         }
     }
-
-    qsort( Function->BasicBlocks, Function->BasicBlocksCount, sizeof( CHIP8_BASIC_BLOCK* ), Chip8CompareBasicBlocks );
-    qsort( Function->ControlFlowGraph->Nodes, Function->ControlFlowGraph->NodesCount, sizeof( CHIP8_CONTROL_FLOW_NODE* ), Chip8CompareControlFlowNodes );
 
     Disassembly->Functions.push_back( Function );
 
@@ -597,7 +557,7 @@ Chip8DiscoverFunctions(
     UINT16 ProgramCounter = Function;
     while ( ProgramCounter )
     {
-        CHIP8_INSTRUCTION Instruction = { };
+        CHIP8_MACHINE_INSTRUCTION Instruction = { };
         if ( Chip8DisassembleInstruction( ( CONST UINT16 CONST* )( Program + ProgramCounter ), &Instruction ) == FALSE )
         {
             return;
@@ -708,7 +668,7 @@ Chip8GetMnemonicString(
 STATIC
 SIZE_T
 Chip8FormatOperand(
-    _In_ CONST CHIP8_OPERAND CONST* Operand,
+    _In_ CONST CHIP8_MACHINE_OPERAND CONST* Operand,
     _Inout_ CHAR* Buffer,
     _In_ SIZE_T BufferSize
 )
@@ -717,41 +677,41 @@ Chip8FormatOperand(
 
     switch ( Operand->Type )
     {
-        case CHIP8_OPERAND_TYPE_REGISTER:
+        case CHIP8_MACHINE_OPERAND_TYPE_REGISTER:
         {
             PrintedSize += snprintf( Buffer + PrintedSize, BufferSize - PrintedSize, "R%d", Operand->Register );
 
-            if ( Operand->Flags & CHIP8_OPERAND_FLAG_BINARY_CODED_DECIMAL )
+            if ( Operand->Flags & CHIP8_MACHINE_OPERAND_FLAG_BINARY_CODED_DECIMAL )
             {
                 PrintedSize += snprintf( Buffer + PrintedSize, BufferSize - PrintedSize, " BCD" );
             }
-            else if ( Operand->Flags & CHIP8_OPERAND_FLAG_SPRITE_INDEX )
+            else if ( Operand->Flags & CHIP8_MACHINE_OPERAND_FLAG_SPRITE_INDEX )
             {
                 PrintedSize += snprintf( Buffer + PrintedSize, BufferSize - PrintedSize, " SPRITE" );
             }
 
         } break;
 
-        case CHIP8_OPERAND_TYPE_ADDRESS:
+        case CHIP8_MACHINE_OPERAND_TYPE_ADDRESS:
         {
             PrintedSize += snprintf( Buffer + PrintedSize, BufferSize - PrintedSize, "%03lX", Operand->Address );
 
-            if ( Operand->Flags & CHIP8_OPERAND_FLAG_RELATIVE_R0 )
+            if ( Operand->Flags & CHIP8_MACHINE_OPERAND_FLAG_RELATIVE_R0 )
             {
                 PrintedSize += snprintf( Buffer + PrintedSize, BufferSize - PrintedSize, ", R0" );
             }
 
         } break;
 
-        case CHIP8_OPERAND_TYPE_IMMEDIATE:
+        case CHIP8_MACHINE_OPERAND_TYPE_IMMEDIATE:
         {
             PrintedSize += snprintf( Buffer + PrintedSize, BufferSize - PrintedSize, "%03X", Operand->Immediate );
 
         } break;
 
-        case CHIP8_OPERAND_TYPE_MEMORY_INDEX:
+        case CHIP8_MACHINE_OPERAND_TYPE_MEMORY_INDEX:
         {
-            if ( Operand->Flags & CHIP8_OPERAND_FLAG_MEMORY_ACCESS )
+            if ( Operand->Flags & CHIP8_MACHINE_OPERAND_FLAG_MEMORY_ACCESS )
             {
                 PrintedSize += snprintf( Buffer + PrintedSize, BufferSize - PrintedSize, "[INDEX]" );
             }
@@ -762,13 +722,13 @@ Chip8FormatOperand(
 
         } break;
 
-        case CHIP8_OPERAND_TYPE_DELAY_TIMER:
+        case CHIP8_MACHINE_OPERAND_TYPE_DELAY_TIMER:
         {
             PrintedSize += snprintf( Buffer + PrintedSize, BufferSize - PrintedSize, "DELAY" );
 
         } break;
 
-        case CHIP8_OPERAND_TYPE_SOUND_TIMER:
+        case CHIP8_MACHINE_OPERAND_TYPE_SOUND_TIMER:
         {
             PrintedSize += snprintf( Buffer + PrintedSize, BufferSize - PrintedSize, "SOUND" );
 
@@ -782,7 +742,7 @@ Chip8FormatOperand(
 
 BOOL
 Chip8FormatInstruction(
-    _In_ CONST CHIP8_INSTRUCTION CONST* Instruction,
+    _In_ CONST CHIP8_MACHINE_INSTRUCTION CONST* Instruction,
     _Inout_ CHAR* Buffer,
     _In_ SIZE_T BufferSize
 )

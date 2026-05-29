@@ -3,38 +3,18 @@
 
 #include <vector>
 
-#include <isa/function.h>
-#include <isa/instruction.h>
+#include <isa/ir/machine.h>
 
 typedef struct _CHIP8_DISASSEMBLED_PROGRAM
 {
-    std::vector<CHIP8_FUNCTION*> Functions;
+    std::vector<CHIP8_MACHINE_FUNCTION> Functions;
 
 } CHIP8_DISASSEMBLED_PROGRAM, *PCHIP8_DISASSEMBLED_PROGRAM;
-
-FORCEINLINE
-VOID
-Chip8DisassembledProgramDestroy(
-    _Inout_ CHIP8_DISASSEMBLED_PROGRAM* Program
-)
-{
-    if ( Program == NULL )
-    {
-        return;
-    }
-
-    for ( CHIP8_FUNCTION* Function : Program->Functions )
-    {
-        Chip8FunctionDestroy( Function );
-    }
-
-    Program->Functions.clear( );
-}
 
 BOOL
 Chip8DisassembleInstruction(
     _In_ CONST UINT16* CONST Instruction,
-    _Inout_ CHIP8_INSTRUCTION* DisassembledInstruction
+    _Inout_ CHIP8_MACHINE_INSTRUCTION* DisassembledInstruction
 );
 
 BOOL
@@ -46,7 +26,7 @@ Chip8DisassembleProgram(
 
 BOOL
 Chip8FormatInstruction(
-    _In_ CONST CHIP8_INSTRUCTION CONST* Instruction,
+    _In_ CONST CHIP8_MACHINE_INSTRUCTION CONST* Instruction,
     _Inout_ CHAR* Buffer,
     _In_ SIZE_T BufferSize
 );

@@ -4,7 +4,7 @@
 
 UINT16
 Chip8AssembleInstruction(
-    _In_ CONST CHIP8_INSTRUCTION CONST* Instruction
+    _In_ CONST CHIP8_MACHINE_INSTRUCTION CONST* Instruction
 )
 {
     CHIP8_OPCODE_KEY OpcodeKey = NULL;
@@ -30,12 +30,12 @@ Chip8AssembleInstruction(
         case CHIP8_MNEMONIC_JMP:
         {
             if ( Instruction->OperandsCount != 1 ||
-                 Instruction->Operands[ 0 ].Type != CHIP8_OPERAND_TYPE_ADDRESS )
+                 Instruction->Operands[ 0 ].Type != CHIP8_MACHINE_OPERAND_TYPE_ADDRESS )
             {
                 return NULL;
             }
 
-            if ( Instruction->Operands[ 0 ].Flags & CHIP8_OPERAND_FLAG_RELATIVE_R0 )
+            if ( Instruction->Operands[ 0 ].Flags & CHIP8_MACHINE_OPERAND_FLAG_RELATIVE_R0 )
             {
                 OpcodeKey = CHIP8_OPCODE_KEY_JMP_REL;
             }
@@ -51,7 +51,7 @@ Chip8AssembleInstruction(
         case CHIP8_MNEMONIC_CALL:
         {
             if ( Instruction->OperandsCount != 1 ||
-                 Instruction->Operands[ 0 ].Type != CHIP8_OPERAND_TYPE_ADDRESS )
+                 Instruction->Operands[ 0 ].Type != CHIP8_MACHINE_OPERAND_TYPE_ADDRESS )
             {
                 return NULL;
             }
@@ -64,7 +64,7 @@ Chip8AssembleInstruction(
         case CHIP8_MNEMONIC_SE:
         {
             if ( Instruction->OperandsCount != 2 ||
-                 Instruction->Operands[ 0 ].Type != CHIP8_OPERAND_TYPE_REGISTER )
+                 Instruction->Operands[ 0 ].Type != CHIP8_MACHINE_OPERAND_TYPE_REGISTER )
             {
                 return NULL;
             }
@@ -73,14 +73,14 @@ Chip8AssembleInstruction(
 
             switch ( Instruction->Operands[ 1 ].Type )
             {
-                case CHIP8_OPERAND_TYPE_REGISTER:
+                case CHIP8_MACHINE_OPERAND_TYPE_REGISTER:
                 {
                     OpcodeKey = CHIP8_OPCODE_KEY_SE_VX_VY;
                     RegisterY = Instruction->Operands[ 1 ].Register;
 
                 } break;
 
-                case CHIP8_OPERAND_TYPE_IMMEDIATE:
+                case CHIP8_MACHINE_OPERAND_TYPE_IMMEDIATE:
                 {
                     OpcodeKey = CHIP8_OPCODE_KEY_SE_VX_IMM;
                     Immediate = Instruction->Operands[ 1 ].Immediate;
@@ -95,7 +95,7 @@ Chip8AssembleInstruction(
         case CHIP8_MNEMONIC_SNE:
         {
             if ( Instruction->OperandsCount != 2 ||
-                 Instruction->Operands[ 0 ].Type != CHIP8_OPERAND_TYPE_REGISTER )
+                 Instruction->Operands[ 0 ].Type != CHIP8_MACHINE_OPERAND_TYPE_REGISTER )
             {
                 return NULL;
             }
@@ -104,14 +104,14 @@ Chip8AssembleInstruction(
 
             switch ( Instruction->Operands[ 1 ].Type )
             {
-                case CHIP8_OPERAND_TYPE_REGISTER:
+                case CHIP8_MACHINE_OPERAND_TYPE_REGISTER:
                 {
                     OpcodeKey = CHIP8_OPCODE_KEY_SNE_VX_VY;
                     RegisterY = Instruction->Operands[ 1 ].Register;
 
                 } break;
 
-                case CHIP8_OPERAND_TYPE_IMMEDIATE:
+                case CHIP8_MACHINE_OPERAND_TYPE_IMMEDIATE:
                 {
                     OpcodeKey = CHIP8_OPCODE_KEY_SNE_VX_IMM;
                     Immediate = Instruction->Operands[ 1 ].Immediate;
@@ -135,33 +135,33 @@ Chip8AssembleInstruction(
             //
             switch ( Instruction->Operands[ 0 ].Type )
             {
-                case CHIP8_OPERAND_TYPE_REGISTER:
+                case CHIP8_MACHINE_OPERAND_TYPE_REGISTER:
                 {
                     switch ( Instruction->Operands[ 1 ].Type )
                     {
-                        case CHIP8_OPERAND_TYPE_REGISTER:    OpcodeKey = CHIP8_OPCODE_KEY_ALU_MOV; break;
-                        case CHIP8_OPERAND_TYPE_IMMEDIATE:   OpcodeKey = CHIP8_OPCODE_KEY_SET_VX_IMM; break;
-                        case CHIP8_OPERAND_TYPE_DELAY_TIMER: OpcodeKey = CHIP8_OPCODE_KEY_SYSTEM_GET_DELAY_TIMER; break;
+                        case CHIP8_MACHINE_OPERAND_TYPE_REGISTER:    OpcodeKey = CHIP8_OPCODE_KEY_ALU_MOV; break;
+                        case CHIP8_MACHINE_OPERAND_TYPE_IMMEDIATE:   OpcodeKey = CHIP8_OPCODE_KEY_SET_VX_IMM; break;
+                        case CHIP8_MACHINE_OPERAND_TYPE_DELAY_TIMER: OpcodeKey = CHIP8_OPCODE_KEY_SYSTEM_GET_DELAY_TIMER; break;
 
                         default: return NULL;
                     }
 
                 } break;
 
-                case CHIP8_OPERAND_TYPE_MEMORY_INDEX:
+                case CHIP8_MACHINE_OPERAND_TYPE_MEMORY_INDEX:
                 {
-                    if ( Instruction->Operands[ 0 ].Flags & CHIP8_OPERAND_FLAG_MEMORY_ACCESS &&
-                         Instruction->Operands[ 1 ].Type == CHIP8_OPERAND_TYPE_REGISTER &&
-                         Instruction->Operands[ 1 ].Flags & CHIP8_OPERAND_FLAG_BINARY_CODED_DECIMAL )
+                    if ( Instruction->Operands[ 0 ].Flags & CHIP8_MACHINE_OPERAND_FLAG_MEMORY_ACCESS &&
+                         Instruction->Operands[ 1 ].Type == CHIP8_MACHINE_OPERAND_TYPE_REGISTER &&
+                         Instruction->Operands[ 1 ].Flags & CHIP8_MACHINE_OPERAND_FLAG_BINARY_CODED_DECIMAL )
                     {
                         OpcodeKey = CHIP8_OPCODE_KEY_SYSTEM_STORE_BCD;
                     }
-                    else if ( Instruction->Operands[ 1 ].Type == CHIP8_OPERAND_TYPE_REGISTER &&
-                              Instruction->Operands[ 1 ].Flags & CHIP8_OPERAND_FLAG_SPRITE_INDEX )
+                    else if ( Instruction->Operands[ 1 ].Type == CHIP8_MACHINE_OPERAND_TYPE_REGISTER &&
+                              Instruction->Operands[ 1 ].Flags & CHIP8_MACHINE_OPERAND_FLAG_SPRITE_INDEX )
                     {
                         OpcodeKey = CHIP8_OPCODE_KEY_SYSTEM_SET_SPRITE;
                     }
-                    else if ( Instruction->Operands[ 1 ].Type == CHIP8_OPERAND_TYPE_ADDRESS )
+                    else if ( Instruction->Operands[ 1 ].Type == CHIP8_MACHINE_OPERAND_TYPE_ADDRESS )
                     {
                         OpcodeKey = CHIP8_OPCODE_KEY_SET_IDX;
                     }
@@ -172,8 +172,8 @@ Chip8AssembleInstruction(
 
                 } break;
 
-                case CHIP8_OPERAND_TYPE_DELAY_TIMER:  OpcodeKey = CHIP8_OPCODE_KEY_SYSTEM_SET_DELAY_TIMER; break;
-                case CHIP8_OPERAND_TYPE_SOUND_TIMER:  OpcodeKey = CHIP8_OPCODE_KEY_SYSTEM_SET_SOUND_TIMER; break;
+                case CHIP8_MACHINE_OPERAND_TYPE_DELAY_TIMER:  OpcodeKey = CHIP8_OPCODE_KEY_SYSTEM_SET_DELAY_TIMER; break;
+                case CHIP8_MACHINE_OPERAND_TYPE_SOUND_TIMER:  OpcodeKey = CHIP8_OPCODE_KEY_SYSTEM_SET_SOUND_TIMER; break;
 
                 default: return NULL;
             }
@@ -230,8 +230,8 @@ Chip8AssembleInstruction(
         case CHIP8_MNEMONIC_OR:
         {
             if ( Instruction->OperandsCount != 2 ||
-                 Instruction->Operands[ 0 ].Type != CHIP8_OPERAND_TYPE_REGISTER ||
-                 Instruction->Operands[ 1 ].Type != CHIP8_OPERAND_TYPE_REGISTER )
+                 Instruction->Operands[ 0 ].Type != CHIP8_MACHINE_OPERAND_TYPE_REGISTER ||
+                 Instruction->Operands[ 1 ].Type != CHIP8_MACHINE_OPERAND_TYPE_REGISTER )
             {
                 return NULL;
             }
@@ -245,8 +245,8 @@ Chip8AssembleInstruction(
         case CHIP8_MNEMONIC_AND:
         {
             if ( Instruction->OperandsCount != 2 ||
-                 Instruction->Operands[ 0 ].Type != CHIP8_OPERAND_TYPE_REGISTER ||
-                 Instruction->Operands[ 1 ].Type != CHIP8_OPERAND_TYPE_REGISTER )
+                 Instruction->Operands[ 0 ].Type != CHIP8_MACHINE_OPERAND_TYPE_REGISTER ||
+                 Instruction->Operands[ 1 ].Type != CHIP8_MACHINE_OPERAND_TYPE_REGISTER )
             {
                 return NULL;
             }
@@ -260,8 +260,8 @@ Chip8AssembleInstruction(
         case CHIP8_MNEMONIC_XOR:
         {
             if ( Instruction->OperandsCount != 2 ||
-                 Instruction->Operands[ 0 ].Type != CHIP8_OPERAND_TYPE_REGISTER ||
-                 Instruction->Operands[ 1 ].Type != CHIP8_OPERAND_TYPE_REGISTER )
+                 Instruction->Operands[ 0 ].Type != CHIP8_MACHINE_OPERAND_TYPE_REGISTER ||
+                 Instruction->Operands[ 1 ].Type != CHIP8_MACHINE_OPERAND_TYPE_REGISTER )
             {
                 return NULL;
             }
@@ -281,11 +281,11 @@ Chip8AssembleInstruction(
 
             switch ( Instruction->Operands[ 0 ].Type )
             {
-                case CHIP8_OPERAND_TYPE_REGISTER:
+                case CHIP8_MACHINE_OPERAND_TYPE_REGISTER:
                 {
                     switch ( Instruction->Operands[ 1 ].Type )
                     {
-                        case CHIP8_OPERAND_TYPE_REGISTER:
+                        case CHIP8_MACHINE_OPERAND_TYPE_REGISTER:
                         {
                             OpcodeKey = CHIP8_OPCODE_KEY_ALU_ADD;
                             RegisterX = Instruction->Operands[ 0 ].Register;
@@ -293,7 +293,7 @@ Chip8AssembleInstruction(
 
                         } break;
 
-                        case CHIP8_OPERAND_TYPE_IMMEDIATE:
+                        case CHIP8_MACHINE_OPERAND_TYPE_IMMEDIATE:
                         {
                             OpcodeKey = CHIP8_OPCODE_KEY_ADD_VX_IMM;
                             RegisterX = Instruction->Operands[ 0 ].Register;
@@ -306,7 +306,7 @@ Chip8AssembleInstruction(
 
                 } break;
 
-                case CHIP8_OPERAND_TYPE_MEMORY_INDEX:
+                case CHIP8_MACHINE_OPERAND_TYPE_MEMORY_INDEX:
                 {
                     OpcodeKey = CHIP8_OPCODE_KEY_SYSTEM_ADD_IDX;
                     RegisterX = Instruction->Operands[ 1 ].Register;
@@ -321,8 +321,8 @@ Chip8AssembleInstruction(
         case CHIP8_MNEMONIC_SUB:
         {
             if ( Instruction->OperandsCount != 2 ||
-                 Instruction->Operands[ 0 ].Type != CHIP8_OPERAND_TYPE_REGISTER ||
-                 Instruction->Operands[ 1 ].Type != CHIP8_OPERAND_TYPE_REGISTER )
+                 Instruction->Operands[ 0 ].Type != CHIP8_MACHINE_OPERAND_TYPE_REGISTER ||
+                 Instruction->Operands[ 1 ].Type != CHIP8_MACHINE_OPERAND_TYPE_REGISTER )
             {
                 return NULL;
             }
@@ -336,8 +336,8 @@ Chip8AssembleInstruction(
         case CHIP8_MNEMONIC_SHR:
         {
             if ( Instruction->OperandsCount != 2 ||
-                 Instruction->Operands[ 0 ].Type != CHIP8_OPERAND_TYPE_REGISTER ||
-                 Instruction->Operands[ 1 ].Type != CHIP8_OPERAND_TYPE_REGISTER )
+                 Instruction->Operands[ 0 ].Type != CHIP8_MACHINE_OPERAND_TYPE_REGISTER ||
+                 Instruction->Operands[ 1 ].Type != CHIP8_MACHINE_OPERAND_TYPE_REGISTER )
             {
                 return NULL;
             }
@@ -351,8 +351,8 @@ Chip8AssembleInstruction(
         case CHIP8_MNEMONIC_SUBN:
         {
             if ( Instruction->OperandsCount != 2 ||
-                 Instruction->Operands[ 0 ].Type != CHIP8_OPERAND_TYPE_REGISTER ||
-                 Instruction->Operands[ 1 ].Type != CHIP8_OPERAND_TYPE_REGISTER )
+                 Instruction->Operands[ 0 ].Type != CHIP8_MACHINE_OPERAND_TYPE_REGISTER ||
+                 Instruction->Operands[ 1 ].Type != CHIP8_MACHINE_OPERAND_TYPE_REGISTER )
             {
                 return NULL;
             }
@@ -366,8 +366,8 @@ Chip8AssembleInstruction(
         case CHIP8_MNEMONIC_SHL:
         {
             if ( Instruction->OperandsCount != 2 ||
-                 Instruction->Operands[ 0 ].Type != CHIP8_OPERAND_TYPE_REGISTER ||
-                 Instruction->Operands[ 1 ].Type != CHIP8_OPERAND_TYPE_REGISTER )
+                 Instruction->Operands[ 0 ].Type != CHIP8_MACHINE_OPERAND_TYPE_REGISTER ||
+                 Instruction->Operands[ 1 ].Type != CHIP8_MACHINE_OPERAND_TYPE_REGISTER )
             {
                 return NULL;
             }
@@ -381,7 +381,7 @@ Chip8AssembleInstruction(
         case CHIP8_MNEMONIC_SKP:
         {
             if ( Instruction->OperandsCount != 1 ||
-                 Instruction->Operands[ 0 ].Type != CHIP8_OPERAND_TYPE_REGISTER )
+                 Instruction->Operands[ 0 ].Type != CHIP8_MACHINE_OPERAND_TYPE_REGISTER )
             {
                 return NULL;
             }
@@ -394,7 +394,7 @@ Chip8AssembleInstruction(
         case CHIP8_MNEMONIC_SKNP:
         {
             if ( Instruction->OperandsCount != 1 ||
-                 Instruction->Operands[ 0 ].Type != CHIP8_OPERAND_TYPE_REGISTER )
+                 Instruction->Operands[ 0 ].Type != CHIP8_MACHINE_OPERAND_TYPE_REGISTER )
             {
                 return NULL;
             }
@@ -407,7 +407,7 @@ Chip8AssembleInstruction(
         case CHIP8_MNEMONIC_HLT:
         {
             if ( Instruction->OperandsCount != 1 ||
-                 Instruction->Operands[ 0 ].Type != CHIP8_OPERAND_TYPE_REGISTER )
+                 Instruction->Operands[ 0 ].Type != CHIP8_MACHINE_OPERAND_TYPE_REGISTER )
             {
                 return NULL;
             }
@@ -420,8 +420,8 @@ Chip8AssembleInstruction(
         case CHIP8_MNEMONIC_RAND:
         {
             if ( Instruction->OperandsCount != 2 ||
-                 Instruction->Operands[ 0 ].Type != CHIP8_OPERAND_TYPE_REGISTER ||
-                 Instruction->Operands[ 1 ].Type != CHIP8_OPERAND_TYPE_IMMEDIATE )
+                 Instruction->Operands[ 0 ].Type != CHIP8_MACHINE_OPERAND_TYPE_REGISTER ||
+                 Instruction->Operands[ 1 ].Type != CHIP8_MACHINE_OPERAND_TYPE_IMMEDIATE )
             {
                 return NULL;
             }
@@ -435,9 +435,9 @@ Chip8AssembleInstruction(
         case CHIP8_MNEMONIC_DRAW:
         {
             if ( Instruction->OperandsCount != 3 ||
-                 Instruction->Operands[ 0 ].Type != CHIP8_OPERAND_TYPE_REGISTER ||
-                 Instruction->Operands[ 1 ].Type != CHIP8_OPERAND_TYPE_REGISTER ||
-                 Instruction->Operands[ 2 ].Type != CHIP8_OPERAND_TYPE_IMMEDIATE )
+                 Instruction->Operands[ 0 ].Type != CHIP8_MACHINE_OPERAND_TYPE_REGISTER ||
+                 Instruction->Operands[ 1 ].Type != CHIP8_MACHINE_OPERAND_TYPE_REGISTER ||
+                 Instruction->Operands[ 2 ].Type != CHIP8_MACHINE_OPERAND_TYPE_IMMEDIATE )
             {
                 return NULL;
             }
@@ -452,7 +452,7 @@ Chip8AssembleInstruction(
         case CHIP8_MNEMONIC_VMSAVE:
         {
             if ( Instruction->OperandsCount != 1 ||
-                 Instruction->Operands[ 0 ].Type != CHIP8_OPERAND_TYPE_REGISTER )
+                 Instruction->Operands[ 0 ].Type != CHIP8_MACHINE_OPERAND_TYPE_REGISTER )
             {
                 return NULL;
             }
@@ -465,7 +465,7 @@ Chip8AssembleInstruction(
         case CHIP8_MNEMONIC_VMLOAD:
         {
             if ( Instruction->OperandsCount != 1 ||
-                 Instruction->Operands[ 0 ].Type != CHIP8_OPERAND_TYPE_REGISTER )
+                 Instruction->Operands[ 0 ].Type != CHIP8_MACHINE_OPERAND_TYPE_REGISTER )
             {
                 return NULL;
             }

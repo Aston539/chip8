@@ -81,7 +81,7 @@ VOID CHIP8_STUDIO_SESSION::LoadProgram( CONST std::vector<BYTE>& Program )
 {
     Pause( );
 
-    Chip8DisassembledProgramDestroy( &Disassembly );
+    Disassembly.Functions.clear( );
 
     Chip8DisassembleProgram( Program.data( ), Program.size( ), &Disassembly );
 
