@@ -79,7 +79,7 @@ Chip8InitializeAddressOperand(
 
 BOOL
 Chip8DisassembleInstruction(
-    _In_ CONST UINT16* CONST Instruction,
+    _In_ CONST CHIP8_ENCODED_INSTRUCTION* CONST Instruction,
     _Inout_ CHIP8_MACHINE_INSTRUCTION* DisassembledInstruction
 )
 {

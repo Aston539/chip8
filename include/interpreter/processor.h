@@ -5,17 +5,17 @@
 
 typedef struct _CHIP8_VIRTUAL_PROCESSOR
 {
-    UINT16 ProgramCounter;
+    CHIP8_ADDRESS ProgramCounter;
     UINT16 CycleCount;
 
     BYTE DelayTimer;
     BYTE SoundTimer;
 
-    UINT16 MemoryIndex;
+    CHIP8_ADDRESS MemoryIndex;
 
-    BYTE Registers[ 16 ];
+    CHIP8_REGISTER Registers[ 16 ];
 
-    UINT16 CallStack[ 16 ];
+    CHIP8_ADDRESS CallStack[ 16 ];
     BYTE CallStackSize;
 
 } CHIP8_VIRTUAL_PROCESSOR, *PCHIP8_VIRTUAL_PROCESSOR;

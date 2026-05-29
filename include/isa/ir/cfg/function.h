@@ -11,7 +11,7 @@
 template<typename INSTRUCTION>
 struct CHIP8_FUNCTION
 {
-    UINT16 Address;
+    CHIP8_ADDRESS Address;
 
     std::map<CHIP8_ADDRESS, CHIP8_BASIC_BLOCK<INSTRUCTION>> BasicBlocks;
 
