@@ -151,7 +151,7 @@ DisplayInstructionsDisassembly(
 
                 printf( "CODE:%04X", InstructionAddress );
                 printf( "    " );
-                printf( "%02X %02X", Code[ InstructionAddress - 512 - 1 ], Code[ InstructionAddress - 512 ] );
+                printf( "%02X %02X", Code[ InstructionAddress - 512 ], Code[ InstructionAddress - 512 + 1 ] );
                 printf( "    " );
                 printf( InstructionText );
                 printf( "\n" );
