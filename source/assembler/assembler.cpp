@@ -2,16 +2,16 @@
 #include <encoder/encoder.h>
 #include <disassembler/disassembler.h>
 
-UINT16
+CHIP8_ENCODED_INSTRUCTION
 Chip8AssembleInstruction(
     _In_ CONST CHIP8_MACHINE_INSTRUCTION CONST* Instruction
 )
 {
     CHIP8_OPCODE_KEY OpcodeKey = NULL;
-    BYTE RegisterX = NULL;
-    BYTE RegisterY = NULL;
+    CHIP8_REGISTER RegisterX = NULL;
+    CHIP8_REGISTER RegisterY = NULL;
     BYTE Immediate = NULL;
-    UINT16 Address = NULL;
+    CHIP8_ADDRESS Address = NULL;
 
     switch ( Instruction->Mnemonic )
     {

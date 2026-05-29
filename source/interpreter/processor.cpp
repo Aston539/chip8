@@ -24,7 +24,7 @@ Chip8VirtualProcessorExecuteCycle(
 )
 {
     CHIP8_MACHINE_INSTRUCTION Instruction = { };
-    if ( Chip8DisassembleInstruction( ( CONST UINT16 CONST* )( Machine->Memory + Processor->ProgramCounter ), &Instruction ) == FALSE )
+    if ( Chip8DisassembleInstruction( ( CONST CHIP8_ENCODED_INSTRUCTION CONST* )( Machine->Memory + Processor->ProgramCounter ), &Instruction ) == FALSE )
     {
         return FALSE;
     }
@@ -528,9 +528,9 @@ Chip8VirtualProcessorExecuteCycle(
 
         case CHIP8_MNEMONIC_VMSAVE:
         {
-            for ( BYTE Register = NULL;
-                  Register <= Instruction.Operands[ 0 ].Register;
-                  Register++ )
+            for ( CHIP8_REGISTER Register = NULL;
+                                 Register <= Instruction.Operands[ 0 ].Register;
+                                 Register++ )
             {
                 Machine->Memory[ Processor->MemoryIndex + Register ] = Processor->Registers[ Register ];
             }
@@ -542,9 +542,9 @@ Chip8VirtualProcessorExecuteCycle(
 
         case CHIP8_MNEMONIC_VMLOAD:
         {
-            for ( BYTE Register = NULL;
-                  Register <= Instruction.Operands[ 0 ].Register;
-                  Register++ )
+            for ( CHIP8_REGISTER Register = NULL;
+                                 Register <= Instruction.Operands[ 0 ].Register;
+                                 Register++ )
             {
                 Processor->Registers[ Register ] = Machine->Memory[ Processor->MemoryIndex + Register ];
             }

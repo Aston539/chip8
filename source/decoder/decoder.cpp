@@ -3,7 +3,7 @@
 STATIC
 BOOL
 Chip8IsValidRegister(
-    _In_ BYTE Register
+    _In_ CHIP8_REGISTER Register
 )
 {
     return Register >= 0 && Register < 16;
@@ -11,7 +11,7 @@ Chip8IsValidRegister(
 
 BOOL
 Chip8DecodeInstruction(
-    _In_ CONST UINT16 CONST* Instruction,
+    _In_ CONST CHIP8_ENCODED_INSTRUCTION CONST* Instruction,
     _Inout_ CHIP8_DECODED_INSTRUCTION* DecodedInstruction
 )
 {
@@ -51,7 +51,7 @@ Chip8DecodeInstruction(
         case CHIP8_OPCODE_SET_IDX:
         case CHIP8_OPCODE_JMP_REL:
         {
-            DecodedInstruction->Address = ( ( ( UINT16 )( DecodedInstruction->High & 0x0F ) << 8 ) | DecodedInstruction->Low );
+            DecodedInstruction->Address = ( ( ( CHIP8_ADDRESS )( DecodedInstruction->High & 0x0F ) << 8 ) | DecodedInstruction->Low );
             DecodedInstruction->OpcodeKey = ( DecodedInstruction->Opcode << 12 );
 
             return TRUE;

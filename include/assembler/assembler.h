@@ -5,7 +5,7 @@
 
 #include <isa/ir/machine.h>
 
-UINT16
+CHIP8_ENCODED_INSTRUCTION
 Chip8AssembleInstruction(
     _In_ CONST CHIP8_MACHINE_INSTRUCTION CONST* Instruction
 );

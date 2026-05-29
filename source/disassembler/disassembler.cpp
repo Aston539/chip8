@@ -10,7 +10,7 @@
 STATIC
 BOOL
 Chip8IsValidRegister(
-    _In_ BYTE Register
+    _In_ CHIP8_REGISTER Register
 )
 {
     return Register >= 0 && Register < 16;
@@ -20,7 +20,7 @@ STATIC
 BOOL
 Chip8InitializeRegisterOperand(
     _Inout_ CHIP8_MACHINE_OPERAND* Operand,
-    _In_ BYTE Register
+    _In_ CHIP8_REGISTER Register
 )
 {
     if ( Operand == NULL || Chip8IsValidRegister( Register ) == FALSE )
@@ -61,7 +61,7 @@ STATIC
 BOOL
 Chip8InitializeAddressOperand(
     _Inout_ CHIP8_MACHINE_OPERAND* Operand,
-    _In_ UINT16 Address
+    _In_ CHIP8_ADDRESS Address
 )
 {
     if ( Operand == NULL )
@@ -320,7 +320,7 @@ BOOL
 Chip8DisassembleProgramBasicBlock(
     _In_ BYTE* ProgramSpace, // BYTE[ 4096 ]
     _Inout_ CHIP8_MACHINE_FUNCTION* Function,
-    _In_ UINT16 BasicBlockAddress
+    _In_ CHIP8_ADDRESS BasicBlockAddress
 )
 {
     if ( Function->BasicBlocks.contains( BasicBlockAddress ) )
@@ -331,7 +331,7 @@ Chip8DisassembleProgramBasicBlock(
     CHIP8_MACHINE_BASIC_BLOCK BasicBlock = { };
     BasicBlock.Address = BasicBlockAddress;
 
-    UINT16 ProgramCounter = BasicBlock.Address;
+    CHIP8_ADDRESS ProgramCounter = BasicBlock.Address;
     while ( ProgramCounter )
     {
         //
@@ -391,10 +391,10 @@ BOOL
 Chip8DiscoverBasicBlocks(
     _In_ BYTE* ProgramSpace,
     _Inout_ CHIP8_MACHINE_FUNCTION& Function,
-    _In_ UINT16 BasicBlockAddress
+    _In_ CHIP8_ADDRESS BasicBlockAddress
 )
 {
-    UINT16 ProgramCounter = BasicBlockAddress;
+    CHIP8_ADDRESS ProgramCounter = BasicBlockAddress;
     while ( ProgramCounter )
     {
         CHIP8_MACHINE_INSTRUCTION Instruction = { };
@@ -524,7 +524,7 @@ Chip8DiscoverFunctionBasicBlocks(
 BOOL
 Chip8DisassembleProgramFunction(
     _In_ BYTE* ProgramSpace,
-    _In_ UINT16 FunctionAddress,
+    _In_ CHIP8_ADDRESS FunctionAddress,
     _Inout_ CHIP8_DISASSEMBLED_PROGRAM* Disassembly
 )
 {
@@ -552,8 +552,8 @@ Chip8DisassembleProgramFunction(
 VOID
 Chip8DiscoverFunctions(
     _In_ CONST BYTE CONST* Program,
-    _In_ UINT16 Function,
-    _Inout_ std::vector<UINT16>& Functions
+    _In_ CHIP8_ADDRESS Function,
+    _Inout_ std::vector<CHIP8_ADDRESS>& Functions
 )
 {
     if ( std::find( Functions.begin( ), Functions.end( ), Function ) == Functions.end( ) )
@@ -563,11 +563,11 @@ Chip8DiscoverFunctions(
 
     std::set<CHIP8_ADDRESS> VisitedAddresses = { };
 
-    UINT16 ProgramCounter = Function;
+    CHIP8_ADDRESS ProgramCounter = Function;
     while ( ProgramCounter )
     {
         CHIP8_MACHINE_INSTRUCTION Instruction = { };
-        if ( Chip8DisassembleInstruction( ( CONST UINT16 CONST* )( Program + ProgramCounter ), &Instruction ) == FALSE )
+        if ( Chip8DisassembleInstruction( ( CONST CHIP8_ENCODED_INSTRUCTION CONST* )( Program + ProgramCounter ), &Instruction ) == FALSE )
         {
             return;
         }
@@ -657,10 +657,10 @@ Chip8DisassembleProgram(
     BYTE ProgramSpace[ 4096 ] = { };
     memcpy( ProgramSpace + 512, Program, ProgramSize );
 
-    std::vector<UINT16> ProgramFunctions = { };
+    std::vector<CHIP8_ADDRESS> ProgramFunctions = { };
     Chip8DiscoverProgramFunctions( ProgramSpace, ProgramFunctions );
 
-    for ( UINT16 Function : ProgramFunctions )
+    for ( CHIP8_ADDRESS Function : ProgramFunctions )
     {
         if ( Chip8DisassembleProgramFunction( ProgramSpace, Function, Disassembly ) == FALSE )
         {
