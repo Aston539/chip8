@@ -19,20 +19,15 @@ public:
     BOOL LookupNodeByAddress( _In_ CHIP8_ADDRESS Address,
                               _Inout_opt_ CHIP8_CONTROL_FLOW_NODE** ControlFlowNode )
     {
-        for ( CONST std::pair<CHIP8_ADDRESS, CHIP8_CONTROL_FLOW_NODE>& Entry : Nodes )
+        CONST std::map<CHIP8_ADDRESS, CHIP8_CONTROL_FLOW_NODE>::iterator& NodeIterator = Nodes.find( Address );
+        if ( NodeIterator != Nodes.end( ) )
         {
-            CONST CHIP8_ADDRESS& EntryAddress = Entry.first;
-            CONST CHIP8_CONTROL_FLOW_NODE& EntryNode = Entry.second;
-
-            if ( EntryAddress == Address )
+            if ( ControlFlowNode )
             {
-                if ( ControlFlowNode )
-                {
-                    *ControlFlowNode = ( CHIP8_CONTROL_FLOW_NODE* ) & EntryNode;
-                }
-
-                return TRUE;
+                *ControlFlowNode = &NodeIterator->second;
             }
+
+            return TRUE;
         }
 
         return FALSE;

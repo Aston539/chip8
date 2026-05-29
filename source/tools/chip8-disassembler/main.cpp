@@ -1,6 +1,7 @@
 #include <iostream>
 #include <fstream>
 #include <vector>
+#include <ranges>
 
 #include <disassembler/disassembler.h>
 
@@ -95,45 +96,44 @@ DisplayInstructionsDisassembly(
         __debugbreak( );
     }
 
-    for ( CHIP8_FUNCTION* Function : ProgramDisassembly.Functions )
+    for ( CONST CHIP8_MACHINE_FUNCTION& Function : ProgramDisassembly.Functions )
     {
-        printf( "CODE:%04X", Function->Address );
+        printf( "CODE:%04X", Function.Address );
         printf( "  " );
-        printf( "FUNCTION_%04X START", Function->Address );
+        printf( "FUNCTION_%04X START", Function.Address );
         printf( "\n" );
 
-        for ( BYTE BasicBlockIndex = NULL;
-                   BasicBlockIndex < Function->BasicBlocksCount;
-                   BasicBlockIndex++ )
+        BYTE BasicBlockIndex = NULL;
+        for ( CONST CHIP8_MACHINE_BASIC_BLOCK& BasicBlock : Function.BasicBlocks | std::views::values )
         {
-            CONST CHIP8_BASIC_BLOCK CONST* BasicBlock = Function->BasicBlocks[ BasicBlockIndex ];
-
-            if ( BasicBlock->Address != Function->Address )
+            if ( BasicBlock.Address != Function.Address )
             {
-                printf( "CODE:%04X", BasicBlock->Address );
+                printf( "CODE:%04X", BasicBlock.Address );
                 printf( "  " );
-                printf( "LABEL_%04X:", BasicBlock->Address );
+                printf( "LABEL_%04X:", BasicBlock.Address );
 
                 CHIP8_CONTROL_FLOW_NODE* ReferencingNode = NULL;
-                if ( Chip8ControlFlowGraphLookupNodeByAddress( Function->ControlFlowGraph, BasicBlock->Address, &ReferencingNode ) )
+                if ( ( ( CHIP8_MACHINE_FUNCTION& )Function ).ControlFlowGraph.LookupNodeByAddress( BasicBlock.Address, &ReferencingNode ) )
                 {
-                    if ( ReferencingNode->PredecessorsCount )
+                    if ( ReferencingNode->Predecessors.empty( ) == FALSE )
                     {
                         printf( "\t" );
                         printf( "\t" );
                         printf( "\t" );
                         printf( "\t" );
                         printf( " ; -> " );
-                        for ( BYTE SuccessorIndex = NULL;
-                                   SuccessorIndex < ReferencingNode->PredecessorsCount;
-                                   SuccessorIndex++ )
-                        {
-                            printf( "%04X", ReferencingNode->Predecessors[ SuccessorIndex ] );
 
-                            if ( ( SuccessorIndex + 1 ) < ReferencingNode->PredecessorsCount )
+                        BYTE PredecessorIndex = NULL;
+                        for ( CONST CHIP8_ADDRESS& Predecessor : ReferencingNode->Predecessors )
+                        {
+                            printf( "%04X", Predecessor );
+
+                            if ( ( PredecessorIndex + 1 ) < ReferencingNode->Predecessors.size( ) )
                             {
                                 printf( ", " );
                             }
+
+                            PredecessorIndex += 1;
                         }
                     }
                 }
@@ -142,12 +142,12 @@ DisplayInstructionsDisassembly(
             }
 
             for ( BYTE InstructionIndex = NULL;
-                       InstructionIndex < BasicBlock->InstructionsCount;
+                       InstructionIndex < BasicBlock.Instructions.size( );
                        InstructionIndex++ )
             {
-                UINT16 InstructionAddress = BasicBlock->Address + ( InstructionIndex * sizeof( CHIP8_ENCODED_INSTRUCTION ) );
+                UINT16 InstructionAddress = BasicBlock.Address + ( InstructionIndex * sizeof( CHIP8_ENCODED_INSTRUCTION ) );
                 CHAR InstructionText[ 64 + 1 ] = { };
-                Chip8FormatInstruction( BasicBlock->Instructions[ InstructionIndex ], InstructionText, 64 );
+                Chip8FormatInstruction( &BasicBlock.Instructions[ InstructionIndex ], InstructionText, 64 );
 
                 printf( "CODE:%04X", InstructionAddress );
                 printf( "    " );
@@ -157,16 +157,17 @@ DisplayInstructionsDisassembly(
                 printf( "\n" );
             }
 
-            if ( BasicBlockIndex != ( Function->BasicBlocksCount - 1 ) )
+            if ( BasicBlockIndex != ( Function.BasicBlocks.size( ) - 1 ) )
             {
                 printf( "\n" );
             }
 
+            BasicBlockIndex += 1;
         }
 
-        printf( "CODE:%04X", Function->Address );
+        printf( "CODE:%04X", Function.Address );
         printf( "  " );
-        printf( "FUNCTION_%04X END", Function->Address );
+        printf( "FUNCTION_%04X END", Function.Address );
         printf( "\n" );
 
         printf( "\n" );
