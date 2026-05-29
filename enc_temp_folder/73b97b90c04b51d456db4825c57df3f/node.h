@@ -18,12 +18,12 @@ public:
 
     BOOL HasPredecessor( _In_ CHIP8_ADDRESS Predecessor ) CONST
     {
-        return Predecessors.contains( Predecessor );
+        return Predecessors.find( Predecessor ) != Predecessors.end( );
     }
 
     BOOL HasSuccessor( _In_ CHIP8_ADDRESS Successor ) CONST
     {
-        return Successors.contains( Successor );
+        return Successors.find( Successor ) != Successors.end( );
     }
 
     VOID AddPredecessor( _In_ CHIP8_ADDRESS Predecessor )

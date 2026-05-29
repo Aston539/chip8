@@ -582,6 +582,26 @@ Chip8DiscoverFunctions(
 
             } break;
 
+            case CHIP8_MNEMONIC_JMP:
+            {
+                //
+                // skip over indirect control flow or forever loops
+                //
+                if ( Instruction.Operands[ 0 ].Flags & CHIP8_MACHINE_OPERAND_FLAG_RELATIVE_R0 ||
+                     Instruction.Operands[ 0 ].Address == ProgramCounter )
+                {
+                    ProgramCounter += sizeof( CHIP8_ENCODED_INSTRUCTION );
+
+                    break;
+                }
+
+                //
+                // follow direct control flow
+                //
+                ProgramCounter = Instruction.Operands[ 0 ].Address;
+
+            } break;
+
             case CHIP8_MNEMONIC_RET: return;
 
             //
