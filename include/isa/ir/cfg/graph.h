@@ -56,6 +56,12 @@ public:
         return FALSE;
     }
 
+    BOOL LookupNodeByAddress( _In_ CHIP8_ADDRESS Address,
+                              _Inout_opt_ CHIP8_CONTROL_FLOW_NODE** ControlFlowNode ) CONST
+    {
+        return LookupNodeByAddress( Address, ControlFlowNode );
+    }
+
     CONST CHIP8_CONTROL_FLOW_NODES& GetNodes( ) CONST
     {
         return Nodes;

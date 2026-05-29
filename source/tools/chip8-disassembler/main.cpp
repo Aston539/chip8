@@ -113,7 +113,7 @@ DisplayInstructionsDisassembly(
                 printf( "LABEL_%04X:", BasicBlock.Address );
 
                 CHIP8_CONTROL_FLOW_NODE* ReferencingNode = NULL;
-                if ( ( ( CHIP8_MACHINE_FUNCTION& )Function ).ControlFlowGraph.LookupNodeByAddress( BasicBlock.Address, &ReferencingNode ) )
+                if ( Function.ControlFlowGraph.LookupNodeByAddress( BasicBlock.Address, &ReferencingNode ) )
                 {
                     if ( ReferencingNode->Predecessors.empty( ) == FALSE )
                     {
