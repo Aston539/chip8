@@ -84,7 +84,7 @@ IsArgumentRawInstruction(
 }
 
 STATIC
-VOID
+BOOL
 DisplayInstructionsDisassembly(
     _In_ CONST BYTE CONST* Code,
     _In_ SIZE_T CodeSize
@@ -93,7 +93,7 @@ DisplayInstructionsDisassembly(
     CHIP8_DISASSEMBLED_PROGRAM ProgramDisassembly = { };
     if ( Chip8DisassembleProgram( Code, CodeSize, &ProgramDisassembly ) == FALSE )
     {
-        __debugbreak( );
+        return FALSE;
     }
 
     for ( CONST CHIP8_MACHINE_FUNCTION& Function : ProgramDisassembly.Functions )
@@ -173,6 +173,8 @@ DisplayInstructionsDisassembly(
 
         printf( "\n" );
     }
+
+    return TRUE;
 }
 
 int main( int ArgumentCount, char** Arguments )
@@ -190,11 +192,16 @@ int main( int ArgumentCount, char** Arguments )
         std::ifstream File( Arguments[ 1 ], std::ios::in | std::ios::binary );
         if ( File.is_open( ) == FALSE )
         {
-            return 1;
+            return 2;
         }
 
         File.seekg( NULL, std::ios::end );
         std::streamsize FileSize = File.tellg( );
+        if ( FileSize <= NULL )
+        {
+            return 3;
+        }
+
         File.seekg( NULL, std::ios::beg );
 
         Code.resize( FileSize );
@@ -225,12 +232,15 @@ int main( int ArgumentCount, char** Arguments )
             {
                 DisplayUsage( );
 
-                return 1;
+                return 4;
             }
         }
     }
 
-    DisplayInstructionsDisassembly( Code.data( ), Code.size( ) );
+    if ( DisplayInstructionsDisassembly( Code.data( ), Code.size( ) ) == FALSE )
+    {
+        return 5;
+    }
 
     return 0;
 }
