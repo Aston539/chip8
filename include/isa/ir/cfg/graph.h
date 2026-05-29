@@ -39,27 +39,26 @@ public:
         Nodes.at( Destination ).AddPredecessor( Source );
     }
 
-    BOOL LookupNodeByAddress( _In_ CHIP8_ADDRESS Address,
-                              _Inout_opt_ CHIP8_CONTROL_FLOW_NODE** ControlFlowNode )
+    CHIP8_CONTROL_FLOW_NODE* LookupNodeByAddress( _In_ CHIP8_ADDRESS Address )
     {
         CONST std::map<CHIP8_ADDRESS, CHIP8_CONTROL_FLOW_NODE>::iterator& NodeIterator = Nodes.find( Address );
-        if ( NodeIterator != Nodes.end( ) )
+        if ( NodeIterator == Nodes.end( ) )
         {
-            if ( ControlFlowNode )
-            {
-                *ControlFlowNode = &NodeIterator->second;
-            }
-
-            return TRUE;
+            return NULL;
         }
 
-        return FALSE;
+        return &NodeIterator->second;
     }
 
-    BOOL LookupNodeByAddress( _In_ CHIP8_ADDRESS Address,
-                              _Inout_opt_ CHIP8_CONTROL_FLOW_NODE** ControlFlowNode ) CONST
+    CONST CHIP8_CONTROL_FLOW_NODE* LookupNodeByAddress( _In_ CHIP8_ADDRESS Address ) CONST
     {
-        return LookupNodeByAddress( Address, ControlFlowNode );
+        CONST std::map<CHIP8_ADDRESS, CHIP8_CONTROL_FLOW_NODE>::const_iterator& NodeIterator = Nodes.find( Address );
+        if ( NodeIterator == Nodes.end( ) )
+        {
+            return NULL;
+        }
+
+        return &NodeIterator->second;
     }
 
     CONST CHIP8_CONTROL_FLOW_NODES& GetNodes( ) CONST

@@ -49,7 +49,7 @@ Chip8VirtualProcessorExecuteCycle(
 
         case CHIP8_MNEMONIC_RET:
         {
-            assert( Processor->CallStackSize == NULL, "Program attempted to return without any call stack" );
+            assert( Processor->CallStackSize != NULL, "Program attempted to return without any call stack" );
 
             Processor->CallStackSize -= 1;
             Processor->ProgramCounter = Processor->CallStack[ Processor->CallStackSize ];
@@ -72,7 +72,7 @@ Chip8VirtualProcessorExecuteCycle(
 
         case CHIP8_MNEMONIC_CALL:
         {
-            assert( Processor->CallStackSize >= ARRAYSIZE( Processor->CallStack ), "Program overran callstack" );
+            assert( Processor->CallStackSize < ARRAYSIZE( Processor->CallStack ), "Program overran callstack" );
 
             Processor->CallStack[ Processor->CallStackSize ] = Processor->ProgramCounter + sizeof( CHIP8_ENCODED_INSTRUCTION );
             Processor->CallStackSize += 1;

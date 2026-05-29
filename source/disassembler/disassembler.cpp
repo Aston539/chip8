@@ -338,7 +338,7 @@ Chip8DisassembleProgramBasicBlock(
         // are we colliding with another block?
         //
         if ( ProgramCounter != BasicBlockAddress && 
-             Function->ControlFlowGraph.LookupNodeByAddress( ProgramCounter, NULL ) )
+             Function->ControlFlowGraph.LookupNodeByAddress( ProgramCounter ) != NULL )
         {
             Function->BasicBlocks[ BasicBlockAddress ] = std::move( BasicBlock );
 
@@ -438,7 +438,7 @@ Chip8DiscoverBasicBlocks(
                 //
                 // check whether we have already discovered this block, if not, discover it
                 //
-                if ( Function.ControlFlowGraph.LookupNodeByAddress( SuccessorAddress, NULL ) == FALSE )
+                if ( Function.ControlFlowGraph.LookupNodeByAddress( SuccessorAddress ) == NULL )
                 {
                     if ( Chip8DiscoverBasicBlocks( ProgramSpace, Function, SuccessorAddress ) == FALSE )
                     {
@@ -471,7 +471,7 @@ Chip8DiscoverBasicBlocks(
                 //
                 // check whether we have already discovered this block, if not, discover it
                 //
-                if ( Function.ControlFlowGraph.LookupNodeByAddress( SuccessSucessorAddress, NULL ) == FALSE )
+                if ( Function.ControlFlowGraph.LookupNodeByAddress( SuccessSucessorAddress ) == NULL )
                 {
                     if ( Chip8DiscoverBasicBlocks( ProgramSpace, Function, SuccessSucessorAddress ) == FALSE )
                     {
@@ -484,7 +484,7 @@ Chip8DiscoverBasicBlocks(
                 //
                 // check whether we have already discovered this block, if not, discover it
                 //
-                if ( Function.ControlFlowGraph.LookupNodeByAddress( FailSucessorAddress, NULL ) == FALSE )
+                if ( Function.ControlFlowGraph.LookupNodeByAddress( FailSucessorAddress ) == NULL )
                 {
                     if ( Chip8DiscoverBasicBlocks( ProgramSpace, Function, FailSucessorAddress ) == FALSE )
                     {
