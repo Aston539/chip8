@@ -425,7 +425,7 @@ Chip8VirtualProcessorExecuteCycle(
 
         case CHIP8_MNEMONIC_SKP:
         {
-            BYTE Key = Processor->Registers[ Instruction.Operands[ 0 ].Register ];
+            BYTE Key = Processor->Registers[ Instruction.Operands[ 0 ].Register ] & 0xF;
             if ( Machine->Keypad[ Key ] )
             {
                 Processor->ProgramCounter += sizeof( CHIP8_ENCODED_INSTRUCTION );
@@ -438,7 +438,7 @@ Chip8VirtualProcessorExecuteCycle(
 
         case CHIP8_MNEMONIC_SKNP:
         {
-            BYTE Key = Processor->Registers[ Instruction.Operands[ 0 ].Register ];
+            BYTE Key = Processor->Registers[ Instruction.Operands[ 0 ].Register ] & 0xF;
             if ( Machine->Keypad[ Key ] == FALSE )
             {
                 Processor->ProgramCounter += sizeof( CHIP8_ENCODED_INSTRUCTION );
