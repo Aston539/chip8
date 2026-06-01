@@ -13,4 +13,4 @@ struct CHIP8_BASIC_BLOCK
     std::vector<INSTRUCTION> Instructions;
 };
 
-#endif // _CHIP8_ISA_CFG_IR_BASIC_BLOCK_Hs_
+#endif // _CHIP8_ISA_CFG_IR_BASIC_BLOCK_H_

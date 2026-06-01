@@ -79,30 +79,5 @@ int main( int ArgumentCount, char** Arguments )
         }
     }
 
-    CHIP8_LEXER Lexer = { };
-    Chip8LexerInitialize( &Lexer, ProgramCode.c_str( ), ProgramCode.size( ) );
 
-    CHIP8_LEXER_TOKEN Token = { };
-    while ( Chip8LexerAdvanceToken( &Lexer, &Token ) )
-    {
-        if ( Token.Type == CHIP8_LEXER_TOKEN_TYPE_END )
-        {
-            break;
-        }
-
-        if ( Token.Type == CHIP8_LEXER_TOKEN_TYPE_NEWLINE )
-        {
-            printf( "\n" );
-            continue;
-        }
-
-        CHAR TokenText[ 33 ] = { 0 };
-
-        SIZE_T CopySize = Token.TextLength;
-        if ( CopySize > 32 ) CopySize = 32;
-
-        strncpy( TokenText, Token.TextStart, CopySize );
-
-        printf( "%s\n", TokenText );
-    }
 }

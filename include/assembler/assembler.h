@@ -3,8 +3,5 @@
 
 #include <defines.h>
 
-#include <isa/ir/ast.h>
-
-
 
 #endif // _CHIP8_ASSEMBLER_H_
