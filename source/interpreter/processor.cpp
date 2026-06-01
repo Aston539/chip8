@@ -18,10 +18,7 @@ Chip8VirtualProcessorInitialise(
     memset( Processor->Registers, NULL, sizeof( Processor->Registers ) );
     memset( Processor->CallStack, NULL, sizeof( Processor->CallStack ) );
 
-    //
-    // seed with tickcount and stack address of processor pointer
-    //
-    srand( __rdtsc( ) * ( ULONG64 )&Processor );
+    srand( clock( ) );
 }
 
 BOOL
